@@ -217,6 +217,15 @@ public class LoadingManager : BaseBehaviour
 
       UpdateLoadedScenes();
       
+      //Run OnLoadCompleted
+      int Behaviours_Len = AllBehaviours.Count;
+      for (int i = 0; i < Behaviours_Len; i++)
+      {
+         //TODO: Add some profile samples around this!
+         try { AllBehaviours[i].OnLevelLoad(); }
+         catch(Exception Ex) { AllBehaviours[i].Error(Ex.ToString()); }
+      }
+      
       m_LoadingCamera.SetActive(false);
       yield return FadeLoadingScreen(false); //Hide Loading Screen
       

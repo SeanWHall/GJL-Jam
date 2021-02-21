@@ -34,6 +34,38 @@ public class GameManager : BaseBehaviour
 
    private List<TimeScaleHandle> m_ScaleHandles = new List<TimeScaleHandle>();
    private int                   m_ScaleHandles_Count;
+
+   private void Update()
+   {
+      //Update all Behaviours which require it!
+      //TODO: Maybe make an array which has the indexes of behaviours that need updating? Would need to profile to deterime if its needed
+      int   Behaviours_Len = AllBehaviours.Count;
+      float DeltaTime      = Time.deltaTime;
+      for (int i = 0; i < Behaviours_Len; i++)
+      {
+         BaseBehaviour Behaviour = AllBehaviours[i];
+         if(Behaviour == this)
+            continue; //Dont update the GameManager
+         
+         try
+         {
+            //Control whether or not the behaviour should be updated
+            eUpdateFlags Flags = Behaviour.UpdateFlags;
+            if(Flags.HasFlag(eUpdateFlags.RequireUpdate))
+               continue;
+            
+            if(LoadingManager.IsBusy && !Flags.HasFlag(eUpdateFlags.WhileLoading))
+               continue; //Check if the behaviour wants to be updated while loading
+            
+            if(PauseMenu.IsPaused && !Flags.HasFlag(eUpdateFlags.WhilePaused))
+               continue; //Check if the behaviour wants to be updated while loading
+            
+            //TODO: Add some prfile Sampling around this
+            Behaviour.OnUpdate(DeltaTime);
+         }
+         catch (Exception Ex) { Behaviour.Error(Ex.ToString());}
+      }
+   }
    
    private void Setup()
    {
