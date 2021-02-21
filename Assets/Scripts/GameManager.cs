@@ -27,5 +27,11 @@ public class GameManager : BaseBehaviour
       
       //Place Gamemanager into DontDestoryOnLoad Scene, so it is persistant across all levels
       DontDestroyOnLoad(GameManager_Instance);
+      Instance.Setup();
+   }
+
+   private void Setup()
+   {
+      Log("GameManager Setup");
    }
 }
