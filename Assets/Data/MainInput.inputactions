@@ -1,0 +1,58 @@
+{
+    "name": "MainInput",
+    "maps": [
+        {
+            "name": "UI",
+            "id": "73e0b340-02a5-4444-bb6d-2ffd5117d6a6",
+            "actions": [
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "2a72634d-3848-4e30-890a-1fd6d8aee0a5",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Point",
+                    "type": "Value",
+                    "id": "052e4d1b-4977-4a66-b778-4f34501235f8",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2ae00def-d2ac-499e-ba8e-4f539a395243",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba365707-29b6-4b6e-9642-bbababcde75b",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Point",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Player",
+            "id": "88a8e07e-dbe8-4221-8492-0c71de2a48cc",
+            "actions": [],
+            "bindings": []
+        }
+    ],
+    "controlSchemes": []
+}

@@ -102,14 +102,42 @@ public class LoadingManager : BaseBehaviour
    public static LoadingManager Instance { get; private set; }
    public static bool           IsBusy   => Instance != null && Instance.m_Routine != null;
 
-   public float             FadeSpeed = 2f;
-   public GameObject        LoadingScreen_Root;
+   public static void LoadLevel(string Key)
+   {
+      if (Instance == null)
+      {
+         Instance.Error("Failed to find Loading Manager instance, it hasn't been setup yet?");
+         return;
+      }
+      
+      if (IsBusy)
+      {
+         Instance.Error($"Failed to Start loading: {Key} as we are already loading something");
+         return;
+      }
+
+      int LevelIDx = Instance.GetLevelIDx(Key);
+      if (LevelIDx == -1)
+      {
+         Instance.Error($"Failed to Start loading: {Key} as we couldn't find the collection");
+         return;
+      }
+
+      Instance.m_Routine = Instance.StartCoroutine(Instance.LoadLevelASync(Instance.Levels[LevelIDx]));
+   }
+   
+   public float      FadeSpeed = 2f;
+   public GameObject LoadingScreenPrefab;
    [HideInInspector]
    public LevelCollection[] Levels = new LevelCollection[0];
 
-   private Coroutine m_Routine;
-   private Graphic[] m_Graphics;
-   private float[]   m_Graphics_Alphas;
+   private Coroutine   m_Routine;
+   private GameObject  m_LoadingScreen;
+   private GameObject  m_LoadingCamera;
+   private Graphic[]   m_Graphics;
+   private float[]     m_Graphics_Alphas;
+   private Scene       m_LoadingScene;
+   private List<Scene> m_LoadedScenes = new List<Scene>();
    
    private void Awake()
    {
@@ -118,17 +146,27 @@ public class LoadingManager : BaseBehaviour
          Error("A Loading Manager is already setup?! Something has gone wrong here");
          return;
       }
-      
-      Instance   = this;
-      m_Graphics = LoadingScreen_Root.GetComponents<Graphic>();
 
-      //Cache the Starting alpha of the loading screen elements
+      m_LoadingScene  = SceneManager.CreateScene("LoadingScene");
+      m_LoadingScreen = Instantiate(LoadingScreenPrefab);
+      m_LoadingCamera = new GameObject("_LoadingCamera", typeof(Camera));
+      m_Graphics      = m_LoadingScreen.GetComponents<Graphic>();
+      
       int Graphics_Len = m_Graphics.Length;
       m_Graphics_Alphas = new float[Graphics_Len];
       for (int i = 0; i < Graphics_Len; i++)
          m_Graphics_Alphas[i] = m_Graphics[i].color.a;
+
+      m_LoadingCamera.SetActive(false);
+      m_LoadingScreen.SetActive(false);
       
-      LoadingScreen_Root.SetActive(false);
+      SceneManager.MoveGameObjectToScene(m_LoadingCamera, m_LoadingScene); 
+      SceneManager.MoveGameObjectToScene(m_LoadingScreen, m_LoadingScene);
+
+      UpdateLoadedScenes();
+      
+      Instance = this;
+      Log("Loading Manager Setup");
    }
    
    public int GetLevelIDx(string Key)
@@ -143,48 +181,45 @@ public class LoadingManager : BaseBehaviour
 
       return -1;
    }
-
-   public void LoadLevel(string Key)
+   
+   private IEnumerator LoadLevelASync(LevelCollection Level)
    {
-      if (IsBusy)
-      {
-         Error($"Failed to Start loading: {Key} as we are already loading something");
-         return;
-      }
+      yield return FadeLoadingScreen(true); //Show Loading Screen
+      m_LoadingCamera.SetActive(true);
 
-      int LevelIDx = GetLevelIDx(Key);
-      if (LevelIDx == -1)
-      {
-         Error($"Failed to Start loading: {Key} as we couldn't find the collection");
-         return;
-      }
-
-      LevelCollection Level = Levels[LevelIDx];
-      m_Routine = StartCoroutine(LoadLevelASync());
+      //Set the Loading Scene as active, so the current level can be unloaded
+      SceneManager.SetActiveScene(m_LoadingScene);
       
-      IEnumerator LoadLevelASync()
+      //Unload the Current Scenes
+      int LoadedScenes_Len = m_LoadedScenes.Count;
+      for (int i = 0; i < LoadedScenes_Len; i++)
+         yield return SceneManager.UnloadSceneAsync(m_LoadedScenes[i], UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+         
+      //Clean memory
+      yield return Resources.UnloadUnusedAssets();
+         
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
+         
+      //Load new Scenes
+      int Scenes_Len = Level.Length;
+      for (int i = 0; i < Scenes_Len; i++)
       {
-         yield return FadeLoadingScreen(true); //Show Loading Screen
+         #if UNITY_EDITOR
+         yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(Level[i], new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
+         #else
+         yield return SceneManager.LoadSceneAsync(Level[i], LoadSceneMode.Additive);
+         #endif
          
-         //Unload the Current Scenes
-         Scene[] LoadedScenes     = GetLoadedScenes();
-         int     LoadedScenes_Len = LoadedScenes.Length;
-         for (int i = 0; i < LoadedScenes_Len; i++)
-            yield return SceneManager.UnloadSceneAsync(i);
-         
-         //Clean memory
-         yield return Resources.UnloadUnusedAssets();
-         
-         GC.Collect();
-         GC.WaitForPendingFinalizers();
-         
-         //Load new Scenes
-         int Scenes_Len = Level.Length;
-         for (int i = 0; i < Scenes_Len; i++)
-            yield return SceneManager.LoadSceneAsync(Level[i], i == 0 ? LoadSceneMode.Single : LoadSceneMode.Additive);
-         
-         yield return FadeLoadingScreen(false); //Hide Loading Screen
+         if (i == 0) //Set the first scene in the list as the main scene
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(Level[i]));
       }
+
+      UpdateLoadedScenes();
+      
+      m_LoadingCamera.SetActive(false);
+      yield return FadeLoadingScreen(false); //Hide Loading Screen
+      
    }
 
    private IEnumerator FadeLoadingScreen(bool FadeIn)
@@ -193,7 +228,7 @@ public class LoadingManager : BaseBehaviour
       int   Graphics_Len = m_Graphics.Length;
       
       UpdateAlpha(); //Setup the alpha before unhiding the loading screen
-      LoadingScreen_Root.SetActive(true);
+      m_LoadingScreen.SetActive(true);
       
       while (Alpha < 1f)
       {
@@ -206,7 +241,7 @@ public class LoadingManager : BaseBehaviour
       UpdateAlpha();
       
       if(!FadeIn) //If we are fading out, hide the loading screen
-         LoadingScreen_Root.SetActive(false);
+         m_LoadingScreen.SetActive(false);
 
       void UpdateAlpha()
       {
@@ -223,14 +258,19 @@ public class LoadingManager : BaseBehaviour
       }
    }
 
-   private Scene[] GetLoadedScenes()
+   private void UpdateLoadedScenes()
    {
-      int     Loaded_Len = SceneManager.sceneCount;
-      Scene[] Loaded     = new Scene[Loaded_Len];
+      m_LoadedScenes.Clear();
+      
+      int Loaded_Len = SceneManager.sceneCount;
       for (int i = 0; i < Loaded_Len; i++)
-         Loaded[i] = SceneManager.GetSceneAt(i);
+      {
+         Scene Target = SceneManager.GetSceneAt(i);
+         if(Target == m_LoadingScene)
+            continue;
 
-      return Loaded;
+         m_LoadedScenes.Add(Target);
+      }
    }
 }
 
