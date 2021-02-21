@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 public class GameManager : BaseBehaviour
 {
@@ -30,8 +32,75 @@ public class GameManager : BaseBehaviour
       Instance.Setup();
    }
 
+   private List<TimeScaleHandle> m_ScaleHandles = new List<TimeScaleHandle>();
+   private int                   m_ScaleHandles_Count;
+   
    private void Setup()
    {
       Log("GameManager Setup");
    }
+
+   //Timescale needs to be monitored and controlled, otherwise gameplay code could very easily soft lock the game
+   public void ReleaseTimeScaleHandle(TimeScaleHandle Handle)
+   {
+      if (!m_ScaleHandles.Remove(Handle))
+         return;
+      
+      RefreshTimeScale(true);
+   }
+   
+   public TimeScaleHandle ControlTimeScale(int Priority, float Scale)
+   {
+      TimeScaleHandle Handle = new TimeScaleHandle(m_ScaleHandles_Count++, Scale, Priority);
+      m_ScaleHandles.Add(Handle);
+      RefreshTimeScale(true);
+      return Handle;
+   }
+
+   public void RefreshTimeScale(bool Sort)
+   {
+      if(Sort)
+         m_ScaleHandles.Sort((A, B) => B.Priority.CompareTo(A.Priority)); //Sort so Highest priority is first!
+
+      //If we have some scale handlers, then use the first one. Otherwise default to zero
+      Time.timeScale = m_ScaleHandles.Count > 0 ? m_ScaleHandles[0].Scale : 1f;
+   }
+}
+
+public struct TimeScaleHandle
+{
+   private int Handle;
+   
+   //Limit setting of these properties. Must be done though setters, to improve perf
+   public float Scale    { get; private set; }
+   public int   Priority { get; private set; }
+
+   public TimeScaleHandle(int Handle, float Scale, int Priority)
+   {
+      this.Handle   = Handle;
+      this.Scale    = Scale;
+      this.Priority = Priority;
+   }
+   
+   public void SetScale(float NewScale)
+   {
+      if (Scale == NewScale)
+         return; //Scales are the same, we dont need to update it
+
+      Scale = NewScale;
+      GameManager.Instance.RefreshTimeScale(false);
+   }
+
+   public void SetPriority(int NewPriority)
+   {
+      if (Priority == NewPriority)
+         return;
+
+      Priority = NewPriority;
+      GameManager.Instance.RefreshTimeScale(true);
+   }
+
+   public void Release() => GameManager.Instance.ReleaseTimeScaleHandle(this);
+
+   public override int GetHashCode() => Handle.GetHashCode();
 }
