@@ -16,7 +16,7 @@ public class PauseMenu : BaseBehaviour
     
     public override void OnUpdate(float DeltaTime)
     {
-        if (!InputManager.Pause_Value)
+        if (!InputManager.Pause.IsPressedOrHeld)
             return;
 
         Pause(!m_Paused);
