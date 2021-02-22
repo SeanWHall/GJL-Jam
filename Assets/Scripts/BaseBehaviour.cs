@@ -9,6 +9,9 @@ public class BaseBehaviour : MonoBehaviour
 {
    public static List<BaseBehaviour> AllBehaviours = new List<BaseBehaviour>();
    
+   public static GameManager  GameManager  => GameManager.Instance;
+   public static InputManager InputManager => InputManager.Instance;
+   
    private string _ID;
    public  string ID => !string.IsNullOrEmpty(_ID) ? _ID : (_ID = GetType().Name);
    
@@ -25,10 +28,12 @@ public class BaseBehaviour : MonoBehaviour
    public void Error(string Message) => Debug.LogError($"[{ID}] {Message}");
 }
 
+[Flags]
 public enum eUpdateFlags
 {
    None = 0,
    RequireUpdate = 1 << 1,
    WhileLoading = 1 << 2,
    WhilePaused = 1 << 3,
+   WhileDisabled = 1 << 4,
 }

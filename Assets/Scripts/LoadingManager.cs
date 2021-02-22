@@ -228,7 +228,8 @@ public class LoadingManager : BaseBehaviour
       
       m_LoadingCamera.SetActive(false);
       yield return FadeLoadingScreen(false); //Hide Loading Screen
-      
+
+      m_Routine = null;
    }
 
    private IEnumerator FadeLoadingScreen(bool FadeIn)

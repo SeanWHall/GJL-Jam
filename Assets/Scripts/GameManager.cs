@@ -51,7 +51,7 @@ public class GameManager : BaseBehaviour
          {
             //Control whether or not the behaviour should be updated
             eUpdateFlags Flags = Behaviour.UpdateFlags;
-            if(Flags.HasFlag(eUpdateFlags.RequireUpdate))
+            if(!Flags.HasFlag(eUpdateFlags.RequireUpdate))
                continue;
             
             if(LoadingManager.IsBusy && !Flags.HasFlag(eUpdateFlags.WhileLoading))
@@ -59,6 +59,9 @@ public class GameManager : BaseBehaviour
             
             if(PauseMenu.IsPaused && !Flags.HasFlag(eUpdateFlags.WhilePaused))
                continue; //Check if the behaviour wants to be updated while loading
+            
+            if((!Behaviour.enabled || !Behaviour.gameObject.activeInHierarchy) && !Flags.HasFlag(eUpdateFlags.WhileDisabled))
+               continue; //Check if it should update even if the gameobject is disabled
             
             //TODO: Add some prfile Sampling around this
             Behaviour.OnUpdate(DeltaTime);
