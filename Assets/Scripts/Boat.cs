@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Bitgem.VFX.StylisedWater;
+﻿using Bitgem.VFX.StylisedWater;
 using UnityEngine;
 
 public class Boat : BaseBehaviour
 {
+   public static Boat Instance { get; private set; }
+   
    public Rigidbody Rigid;
-   public Transform Mesh_Root;
+   public Transform PlayerSeat;
    
    public Vector3 P1;
    public Vector3 P2;
@@ -23,8 +22,15 @@ public class Boat : BaseBehaviour
 
    public float Left_Oar_Delay;
    public float Right_Oar_Delay;
+   public bool  IsBeingControlled = false;
    
    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
+
+   public override void OnEnable()
+   {
+      base.OnEnable();
+      Instance = this;
+   }
 
    public override void OnUpdate(float DeltaTime)
    {
@@ -32,33 +38,39 @@ public class Boat : BaseBehaviour
       if (WaterInstance == null)
          return;
 
-      if (Left_Oar_Delay > 0)
-         Left_Oar_Delay -= DeltaTime;
-      
-      if (Right_Oar_Delay > 0)
-         Right_Oar_Delay -= DeltaTime;
-      
-      if (Left_Oar_Delay <= 0f && InputManager.Boat_LeftOar.IsPressed)
+      if (IsBeingControlled)
       {
-         Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Left_Oar_Offset), ForceMode.Force);
-         Left_Oar_Delay = Oar_Delay;
-      }
-      
-      if (Right_Oar_Delay <= 0f && InputManager.Boat_RightOar.IsPressed)
-      {
-         Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Right_Oar_Offset), ForceMode.Force);
-         Right_Oar_Delay = Oar_Delay;
+         if (Left_Oar_Delay > 0)
+            Left_Oar_Delay -= DeltaTime;
+
+         if (Right_Oar_Delay > 0)
+            Right_Oar_Delay -= DeltaTime;
+
+         if (Left_Oar_Delay <= 0f && InputManager.Boat_LeftOar.IsPressed)
+         {
+            Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Left_Oar_Offset), ForceMode.Force);
+            Left_Oar_Delay = Oar_Delay;
+         }
+
+         if (Right_Oar_Delay <= 0f && InputManager.Boat_RightOar.IsPressed)
+         {
+            Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Right_Oar_Offset), ForceMode.Force);
+            Right_Oar_Delay = Oar_Delay;
+         }
+
+         if (InputManager.Boat_Brake.IsPressedOrHeld)
+         {
+            Rigid.velocity        -= Rigid.velocity * (Brake_Force * DeltaTime);
+            Rigid.angularVelocity -= Rigid.angularVelocity * (Brake_Force * DeltaTime);
+         }
+         
+         if(InputManager.Character_Mount.IsPressed)
+            Unmount();
+         
+         Rigid.velocity        = Vector3.ClampMagnitude(Rigid.velocity, Max_Speed);
+         Rigid.angularVelocity = Vector3.ClampMagnitude(Rigid.angularVelocity, Max_Speed);
       }
 
-      if (InputManager.Boat_Brake.IsPressedOrHeld)
-      {
-         Rigid.velocity        -= Rigid.velocity * (Brake_Force * DeltaTime);
-         Rigid.angularVelocity -= Rigid.angularVelocity * (Brake_Force * DeltaTime);
-      }
-
-      Rigid.velocity        = Vector3.ClampMagnitude(Rigid.velocity, Max_Speed);
-      Rigid.angularVelocity = Vector3.ClampMagnitude(Rigid.angularVelocity, Max_Speed);
-      
       Vector3   Forward  = transform.forward;
       Matrix4x4 LTW      = transform.localToWorldMatrix;
       Vector3   Position = LTW.MultiplyPoint3x4(Vector3.zero);
@@ -75,6 +87,38 @@ public class Boat : BaseBehaviour
       transform.position = Position;
    }
 
+   public override void OnDisable()
+   {
+      base.OnDisable();
+      Instance = null;
+   }
+
+   public void Mount()
+   {
+      if (IsBeingControlled || Player.Instance.MountDelay > 0)
+         return;
+
+      IsBeingControlled                  = true;
+      Player.Instance.IsBeingControlled  = false;
+      Player.Instance.Controller.enabled = false;
+      Player.Instance.transform.SetParent(PlayerSeat);
+      Player.Instance.transform.localPosition = Vector3.zero;
+      Player.Instance.MountDelay              = 1f;
+   }
+
+   public void Unmount()
+   {
+      if (!IsBeingControlled || Player.Instance.MountDelay > 0)
+         return;
+      
+      //TODO: Place player outside of the boat
+      IsBeingControlled                  = false;
+      Player.Instance.IsBeingControlled  = true;
+      Player.Instance.Controller.enabled = true;
+      Player.Instance.transform.SetParent(null);
+      Player.Instance.MountDelay = 1f;
+   }
+   
    private void OnDrawGizmos()
    {
       Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);

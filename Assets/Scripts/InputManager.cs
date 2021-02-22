@@ -12,9 +12,12 @@ public class InputManager : BaseBehaviour
 
     public InputActionAsset InputAsset;
     
-    public InputButton Pause;
-    public InputAxis   Boat_Turn;
-    public InputAxis   Boat_Move;
+    public InputButton UI_Pause;
+    
+    public InputAxis   Character_Movement_Horizontal;
+    public InputAxis   Character_Movement_Vertical;
+    public InputButton Character_Mount;
+    
     public InputButton Boat_LeftOar;
     public InputButton Boat_RightOar;
     public InputButton Boat_Brake;
@@ -28,15 +31,19 @@ public class InputManager : BaseBehaviour
         InputAsset.Enable();
 
         InputActionMap UI_Map = InputAsset.FindActionMap("UI");
-        Pause = AddButton(new InputButton(UI_Map.FindAction("Pause")));
+        UI_Pause = AddButton(new InputButton(UI_Map.FindAction("Pause")));
         
         InputActionMap Boat_Map = InputAsset.FindActionMap("Boat");
-        Boat_Turn     = AddButton(new InputAxis(Boat_Map.FindAction("Turn")));
-        Boat_Move     = AddButton(new InputAxis(Boat_Map.FindAction("Move")));
         Boat_Brake    = AddButton(new InputButton(Boat_Map.FindAction("Brake")));
         Boat_LeftOar  = AddButton(new InputButton(Boat_Map.FindAction("Left Oar")));
         Boat_RightOar = AddButton(new InputButton(Boat_Map.FindAction("Right Oar")));
-
+        
+        
+        InputActionMap Player_Map = InputAsset.FindActionMap("Player");
+        Character_Movement_Horizontal = AddButton(new InputAxis(Player_Map.FindAction("Movement_Horizontal")));
+        Character_Movement_Vertical   = AddButton(new InputAxis(Player_Map.FindAction("Movement_Vertical")));
+        Character_Mount               = AddButton(new InputButton(Player_Map.FindAction("Mount")));
+        
         Instance = this;
     }
 
