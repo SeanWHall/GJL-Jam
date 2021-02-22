@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.Profiling;
 
 public class GameManager : BaseBehaviour
 {
@@ -32,13 +33,21 @@ public class GameManager : BaseBehaviour
       Instance.Setup();
    }
 
-   private List<TimeScaleHandle> m_ScaleHandles = new List<TimeScaleHandle>();
+   private List<TimeScaleHandle> m_ScaleHandles    = new List<TimeScaleHandle>();
    private int                   m_ScaleHandles_Count;
 
    private void Update()
    {
-      //Update all Behaviours which require it!
-      //TODO: Maybe make an array which has the indexes of behaviours that need updating? Would need to profile to deterime if its needed
+      int ToAdd_Len = Behaviours_ToAdd.Count;
+      if (ToAdd_Len > 0)
+      {
+         for(int i = 0; i < ToAdd_Len; i++)
+            AllBehaviours.Add(Behaviours_ToAdd[i]);
+         Behaviours_ToAdd.Clear();
+         
+         AllBehaviours.Sort((A, B) => B.Priority.CompareTo(A.Priority)); //Sort so Highest priority is first!
+      }
+      
       int   Behaviours_Len = AllBehaviours.Count;
       float DeltaTime      = Time.deltaTime;
       for (int i = 0; i < Behaviours_Len; i++)
@@ -63,10 +72,21 @@ public class GameManager : BaseBehaviour
             if((!Behaviour.enabled || !Behaviour.gameObject.activeInHierarchy) && !Flags.HasFlag(eUpdateFlags.WhileDisabled))
                continue; //Check if it should update even if the gameobject is disabled
             
-            //TODO: Add some prfile Sampling around this
+            Behaviour.Sample.Begin();
             Behaviour.OnUpdate(DeltaTime);
+            Behaviour.Sample.End();
          }
          catch (Exception Ex) { Behaviour.Error(Ex.ToString());}
+      }
+      
+      int ToRemove_Len = Behaviours_ToRemove.Count;
+      if (ToRemove_Len > 0)
+      {
+         for(int i = 0; i < ToAdd_Len; i++)
+            AllBehaviours.Remove(Behaviours_ToRemove[i]);
+         Behaviours_ToRemove.Clear();
+         
+         AllBehaviours.Sort((A, B) => B.Priority.CompareTo(A.Priority)); //Sort so Highest priority is first!
       }
    }
    

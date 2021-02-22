@@ -221,9 +221,11 @@ public class LoadingManager : BaseBehaviour
       int Behaviours_Len = AllBehaviours.Count;
       for (int i = 0; i < Behaviours_Len; i++)
       {
-         //TODO: Add some profile samples around this!
-         try { AllBehaviours[i].OnLevelLoad(); }
+         BaseBehaviour Target = AllBehaviours[i];
+         Target.Sample.Begin();
+         try { Target.OnLevelLoad(); }
          catch(Exception Ex) { AllBehaviours[i].Error(Ex.ToString()); }
+         Target.Sample.End();
       }
       
       m_LoadingCamera.SetActive(false);
