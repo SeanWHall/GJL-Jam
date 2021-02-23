@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 3592868667910827456}
   - component: {fileID: 3644113573381448868}
   m_Layer: 0
-  m_Name: Panel
+  m_Name: PauseMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -262,20 +262,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InputAsset: {fileID: -944628639613478452, guid: 7dcdfbbf840100d4d9fdff6f1db8a175,
     type: 3}
-  UI_Map:
-    m_Name: UI_Map
-    m_Id: dc8cb6eb-8279-4a48-997c-e0bb6ce1ec55
-    m_Asset: {fileID: 0}
-    m_Actions: []
-    m_Bindings: []
-  Pause_Action:
-    m_Name: Pause_Action
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: acd0e957-c174-459c-86a8-0f6f23f5c2f5
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
 --- !u!1 &2098382056844080601
 GameObject:
   m_ObjectHideFlags: 0

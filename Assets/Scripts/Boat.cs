@@ -20,9 +20,9 @@ public class Boat : BaseBehaviour
    public float Move_Force  = 5f;
    public float Oar_Delay   = 1.5f;
 
-   public float Left_Oar_Delay;
-   public float Right_Oar_Delay;
-   public bool  IsBeingControlled = false;
+   public float    Left_Oar_Delay;
+   public float    Right_Oar_Delay;
+   public DockArea Dock;
    
    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
@@ -32,44 +32,46 @@ public class Boat : BaseBehaviour
       Instance = this;
    }
 
+   public bool RotateLeftOar()
+   {
+      if (Left_Oar_Delay > 0)
+         return false;
+      
+      Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Left_Oar_Offset), ForceMode.Force);
+      Left_Oar_Delay = Oar_Delay;
+      return true;
+   }
+
+   public bool RotateRightOar()
+   {
+      if (Right_Oar_Delay > 0)
+         return false;
+      
+      Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Right_Oar_Offset), ForceMode.Force);
+      Right_Oar_Delay = Oar_Delay;
+      return true;
+   }
+
+   public void Brake()
+   {
+      Rigid.velocity        -= Rigid.velocity * (Brake_Force * Time.deltaTime);
+      Rigid.angularVelocity -= Rigid.angularVelocity * (Brake_Force * Time.deltaTime);
+   }
+   
    public override void OnUpdate(float DeltaTime)
    {
       WaterVolumeHelper WaterInstance = WaterVolumeHelper.Instance;
       if (WaterInstance == null)
          return;
+      
+      if (Left_Oar_Delay > 0)
+         Left_Oar_Delay -= DeltaTime;
 
-      if (IsBeingControlled)
-      {
-         if (Left_Oar_Delay > 0)
-            Left_Oar_Delay -= DeltaTime;
-
-         if (Right_Oar_Delay > 0)
-            Right_Oar_Delay -= DeltaTime;
-
-         if (Left_Oar_Delay <= 0f && InputManager.Boat_LeftOar.IsPressed)
-         {
-            Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Left_Oar_Offset), ForceMode.Force);
-            Left_Oar_Delay = Oar_Delay;
-         }
-
-         if (Right_Oar_Delay <= 0f && InputManager.Boat_RightOar.IsPressed)
-         {
-            Rigid.AddForceAtPosition(transform.forward * Move_Force, transform.TransformPoint(Right_Oar_Offset), ForceMode.Force);
-            Right_Oar_Delay = Oar_Delay;
-         }
-
-         if (InputManager.Boat_Brake.IsPressedOrHeld)
-         {
-            Rigid.velocity        -= Rigid.velocity * (Brake_Force * DeltaTime);
-            Rigid.angularVelocity -= Rigid.angularVelocity * (Brake_Force * DeltaTime);
-         }
-         
-         if(InputManager.Character_Mount.IsPressed)
-            Unmount();
-         
-         Rigid.velocity        = Vector3.ClampMagnitude(Rigid.velocity, Max_Speed);
-         Rigid.angularVelocity = Vector3.ClampMagnitude(Rigid.angularVelocity, Max_Speed);
-      }
+      if (Right_Oar_Delay > 0)
+         Right_Oar_Delay -= DeltaTime;
+      
+      Rigid.velocity        = Vector3.ClampMagnitude(Rigid.velocity, Max_Speed);
+      Rigid.angularVelocity = Vector3.ClampMagnitude(Rigid.angularVelocity, Max_Speed);
 
       Vector3   Forward  = transform.forward;
       Matrix4x4 LTW      = transform.localToWorldMatrix;
@@ -91,32 +93,6 @@ public class Boat : BaseBehaviour
    {
       base.OnDisable();
       Instance = null;
-   }
-
-   public void Mount()
-   {
-      if (IsBeingControlled || Player.Instance.MountDelay > 0)
-         return;
-
-      IsBeingControlled                  = true;
-      Player.Instance.IsBeingControlled  = false;
-      Player.Instance.Controller.enabled = false;
-      Player.Instance.transform.SetParent(PlayerSeat);
-      Player.Instance.transform.localPosition = Vector3.zero;
-      Player.Instance.MountDelay              = 1f;
-   }
-
-   public void Unmount()
-   {
-      if (!IsBeingControlled || Player.Instance.MountDelay > 0)
-         return;
-      
-      //TODO: Place player outside of the boat
-      IsBeingControlled                  = false;
-      Player.Instance.IsBeingControlled  = true;
-      Player.Instance.Controller.enabled = true;
-      Player.Instance.transform.SetParent(null);
-      Player.Instance.MountDelay = 1f;
    }
    
    private void OnDrawGizmos()
