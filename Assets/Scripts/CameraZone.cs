@@ -7,17 +7,27 @@ using UnityEditor;
 [CustomEditor(typeof(CameraZone))]
 public class CameraZoneEditor : Editor
 {
+    public CameraZone Zone => (CameraZone)target;
+    
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
         serializedObject.Update();
-        if (GUILayout.Button("Scene Camera Direction"))
+        if (GUILayout.Button("Use Scene View"))
         {
-            SerializedProperty Params_Prop           = serializedObject.FindProperty("Params");
-            SerializedProperty Params_Direction_Prop = Params_Prop.FindPropertyRelative("Direction");
+            Plane     CamZone_Plane = new Plane(Vector3.up, Zone.transform.position);
+            Transform SceneCam      = ((SceneView) SceneView.sceneViews[0]).camera.transform;
 
-            Params_Direction_Prop.vector3Value = ((SceneView)SceneView.sceneViews[0]).camera.transform.forward;
+            if (CamZone_Plane.Raycast(new Ray(SceneCam.position, SceneCam.forward), out float Dist))
+            {
+                SerializedProperty Params_Prop           = serializedObject.FindProperty("Params");
+                SerializedProperty Params_Direction_Prop = Params_Prop.FindPropertyRelative("Direction");
+                SerializedProperty Params_Distance_Prop = Params_Prop.FindPropertyRelative("Distance");
+
+                Params_Distance_Prop.floatValue    = Dist;
+                Params_Direction_Prop.vector3Value = SceneCam.forward;
+            }
         }
         serializedObject.ApplyModifiedProperties();
     }
