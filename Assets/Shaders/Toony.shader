@@ -6,16 +6,11 @@
         [Toggle(_Gradient)] _Gradient("Is Gradient", Float) = 1.0
         _GradientX("Gradient X", Range(0, 1)) = 0
         
-        _LightRamp("Light Ramp", 2D) = "white" {}
-        
         _SpecularColor("Specular", Color) = (0.2, 0.2, 0.2)
-        _SpecularRamp("Specular Ramp", 2D) = "white" {}
-        _SpecularMask("Specular Mask", 2D) = "white" {}
         _SpecularRotation("Specular Rotation", Range(0.0, 360)) = 70
         _SpecularTilling("Specular Tilling", Vector) = (0.5, 0.5, 0, 0)
         _SpecularSmoothness("Specular Smoothness", Range(0.0, 1.0)) = 0.5
         
-        _DirtMap("Dirt Map", 2D) = "black" {}
         _DirtColor("Dirt Color", Color) = (1, 1, 1)
         _DirtStrength("Dirt Strength", Range(0.0, 1.0)) = 0.5
         
@@ -80,6 +75,7 @@
                 float3 normalWS     : TEXCOORD3;
                 float4 shadowCoord : TEXCOORD6;
                 float4 positionCS   : SV_POSITION;
+                float2 screenUV : TEXCOORD7;
             };
 
             sampler2D _Albedo;
@@ -115,6 +111,7 @@
                 output.positionWS = vertexInput.positionWS;
                 output.normalWS = vertexNormalInput.normalWS;
                 output.shadowCoord = TransformWorldToShadowCoord(vertexInput.positionWS);
+                output.screenUV = ComputeScreenPos(vertexInput.positionCS);
                 return output;
             }
 
