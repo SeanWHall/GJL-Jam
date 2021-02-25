@@ -22,7 +22,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: DefaultToon
   m_Shader: {fileID: 4800000, guid: 5aeb1ecf06da3f44292b427ff0e74751, type: 3}
-  m_ShaderKeywords: MAIN_LIGHT_CALCULATE_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _SHADOWS_SOFT
+  m_ShaderKeywords: MAIN_LIGHT_CALCULATE_SHADOWS _Gradient _MAIN_LIGHT_SHADOWS_CASCADE
+    _SHADOWS_SOFT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -33,7 +34,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Albedo:
-        m_Texture: {fileID: 2800000, guid: 6b579d01d44fb9e4ea979f8b3a559836, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1a3038652e781da4cbe7eec247750602, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
@@ -44,8 +45,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DirtMap:
+        m_Texture: {fileID: 2800000, guid: 43190fe841eab644b9c7836020988b03, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightRamp:
+        m_Texture: {fileID: 2800000, guid: 02bf1b293ce820541a7f56fae93676c7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightingRamp:
@@ -68,8 +77,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Specular:
+        m_Texture: {fileID: 2800000, guid: d259dc6b71674e6498e7d4f21458c946, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecularMask:
+        m_Texture: {fileID: 2800000, guid: 76eccb6d181895744af6ae73e25d67ae, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecularRamp:
-        m_Texture: {fileID: 2800000, guid: cde8af7eb5b77b941bd41f59e424e81a, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1d54cad69f28813489c2804eca7a9be9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -78,19 +95,25 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DirtStrength: 0.292
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Gradient: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _QueueOffset: 0
+    - _RIM_HIGHLIGHT: 1
     - _ReceiveShadows: 1
+    - _RimAmount: 0.768
+    - _RimHighlight: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularSmoothness: 1
+    - _SpecularRotation: 45
+    - _SpecularSmoothness: 0.2
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 1
@@ -98,6 +121,10 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DirtColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GradMinMax: {r: 0, g: 0, b: 0, a: 0}
+    - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecularColor: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
+    - _SpecularTilling: {r: 25, g: 25, b: 0, a: 0}

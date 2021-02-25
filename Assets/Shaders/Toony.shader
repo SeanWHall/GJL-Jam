@@ -2,7 +2,9 @@
 {
     Properties
     {
-        [MainTexture] _Albedo("Gradient", 2D) = "white" {}
+        [MainTexture] _Albedo("Albedo", 2D) = "white" {}
+        [Toggle(_Gradient)] _Gradient("Is Gradient", Float) = 1.0
+        _GradientX("Gradient X", Range(0, 1)) = 0
         
         _LightRamp("Light Ramp", 2D) = "white" {}
         
@@ -16,6 +18,12 @@
         _DirtMap("Dirt Map", 2D) = "black" {}
         _DirtColor("Dirt Color", Color) = (1, 1, 1)
         _DirtStrength("Dirt Strength", Range(0.0, 1.0)) = 0.5
+        
+        [Toggle(_RIM_HIGHLIGHT)] _RimHighlight("Rim Highlight", Float) = 0
+        _RimColor("Rim Color", Color) = (1, 1, 1)
+        _RimAmount("Rim Amount", Range(0, 1)) = 0.7
+        
+        [HideInInspector] _GradMinMax("Grad MinMax", Vector) = (0, 0, 0, 0)
     }
 
     SubShader
@@ -32,6 +40,8 @@
             #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
+            #pragma multi_compile _ _RIM_HIGHLIGHT
+            #pragma multi_compile _ _Gradient
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
@@ -64,18 +74,18 @@
 
             struct FragInput
             {
-                float2 uv                       : TEXCOORD0;
-                float2 uvLM                     : TEXCOORD1;
-                float4 positionWSAndFogFactor   : TEXCOORD2;
-                half3  normalWS                 : TEXCOORD3;
-                float4 shadowCoord              : TEXCOORD6;
-                float4 positionCS               : SV_POSITION;
-                float2 screenPos                : TEXCOORD7;
+                float2 uv           : TEXCOORD0;
+                float2 uvLM         : TEXCOORD1;
+                float3 positionWS   : TEXCOORD2;
+                float3 normalWS     : TEXCOORD3;
+                float4 shadowCoord : TEXCOORD6;
+                float4 positionCS   : SV_POSITION;
             };
 
             sampler2D _Albedo;
             sampler2D _LightRamp;
             sampler2D _SpecularRamp;
+            float _GradientX;
             
             sampler2D _SpecularMask;
             float _SpecularRotation;
@@ -86,23 +96,25 @@
             sampler2D _DirtMap;
             float3 _DirtColor;
             float _DirtStrength;
+
+            float3 _RimColor;
+            float _RimAmount;
+            
+            float2 _GradMinMax;
             
             FragInput LitPassVertex(VertInput input)
             {
                 FragInput output;
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs vertexNormalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                float fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
+                output.positionCS = vertexInput.positionCS;
                 output.uv = input.uv;
                 output.uvLM = input.uvLM.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 
-                output.positionWSAndFogFactor = float4(vertexInput.positionWS, fogFactor);
+                output.positionWS = vertexInput.positionWS;
                 output.normalWS = vertexNormalInput.normalWS;
-                output.shadowCoord = GetShadowCoord(vertexInput);
-                
-                output.positionCS = vertexInput.positionCS;
-                output.screenPos = ComputeScreenPos(vertexInput.positionCS);
+                output.shadowCoord = TransformWorldToShadowCoord(vertexInput.positionWS);
                 return output;
             }
 
@@ -145,30 +157,40 @@
                 float2 SpecularUV      = RotateDegrees(input.uv, float2(0.5, 0.5), _SpecularRotation);
                 SpecularUV             = TilingAndOffset(SpecularUV, _SpecularTilling, float2(0, 0));
                 float3 SpecularMaskCol = tex2D(_SpecularMask, SpecularUV);
+                float3 normalWS       = SafeNormalize(input.normalWS);
                 
-                float3 diffuse = tex2D(_Albedo, input.uv);
-                diffuse += tex2D(_DirtMap, input.uv) * _DirtColor * _DirtStrength;
+                #if _Gradient
+                float2 albedoUV = float2(_GradientX, saturate((input.positionWS.y - _GradMinMax.x) / (_GradMinMax.y - _GradMinMax.x)));
+                #else
+                float2 albedoUV = input.uv;
+                #endif
                 
-                float3 positionWS = input.positionWSAndFogFactor.xyz;
-                float3 viewDirectionWS = SafeNormalize(GetCameraPositionWS() - positionWS);
-                float3 bakedGI  = SampleLightmap(input.uvLM, input.normalWS);
+                float3 albedo = tex2D(_Albedo, albedoUV);
+                albedo += tex2D(_DirtMap, input.uv) * _DirtColor * _DirtStrength;
+                
+                float3 viewDirectionWS = SafeNormalize(GetCameraPositionWS() - input.positionWS);
+                float3 bakedGI  = SampleLightmap(input.uvLM, normalWS);
                 Light mainLight = GetMainLight(input.shadowCoord);
-                MixRealtimeAndBakedGI(mainLight, input.normalWS, bakedGI, half4(0, 0, 0, 0));
+                MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
 
                 float Smoothness = exp(_SpecularSmoothness * 10 + 1);
                 float3 attenuatedLightColor = mainLight.color * (mainLight.distanceAttenuation * mainLight.shadowAttenuation);
                 
-                float4 lightingColor = LightingBanded(attenuatedLightColor, mainLight.direction, input.normalWS);
-                float4 specularColor = SpecularBanded(attenuatedLightColor, mainLight.direction, input.normalWS, viewDirectionWS, _SpecularColor, Smoothness);
-
+                float4 lightingColor = LightingBanded(attenuatedLightColor, mainLight.direction, normalWS);
+                float4 specularColor = SpecularBanded(attenuatedLightColor, mainLight.direction, normalWS, viewDirectionWS, _SpecularColor, Smoothness);
+                
+                #ifdef _ADDITIONAL_LIGHTS
                 uint pixelLightCount = GetAdditionalLightsCount();
                 for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
                 {
-                    Light light = GetAdditionalLight(lightIndex, positionWS);
+                    Light light = GetAdditionalLight(lightIndex, input.positionWS);
                     float3 attenuatedLightColor = light.color * (light.distanceAttenuation * light.shadowAttenuation);
-                    lightingColor += LightingBanded(attenuatedLightColor, light.direction, input.normalWS);
-                    specularColor += SpecularBanded(attenuatedLightColor, light.direction, input.normalWS, viewDirectionWS, _SpecularColor, Smoothness);
+                    lightingColor += LightingBanded(attenuatedLightColor, light.direction, normalWS);
+                    specularColor += SpecularBanded(attenuatedLightColor, light.direction, normalWS, viewDirectionWS, _SpecularColor, Smoothness);
                 }
+                #else
+                uint pixelLightCount = 0;
+                #endif
 
                 lightingColor.rgb *= tex2D(_LightRamp, float2(saturate(lightingColor.a / (pixelLightCount + 1)), 0)).r;
                 lightingColor.rgb += bakedGI;
@@ -176,7 +198,15 @@
                 specularColor.rgb *= tex2D(_SpecularRamp, float2(saturate(specularColor.a / (pixelLightCount + 1)), 0)).r;
                 specularColor.rgb *= SpecularMaskCol.r;
 
-                return float4(saturate(lightingColor.rgb * diffuse + specularColor.rgb), 1);
+                #if _RIM_HIGHLIGHT
+                float4 rimDot = 1 - dot(viewDirectionWS, normalWS);
+                float rimIntensity = smoothstep(_RimAmount - 0.01, _RimAmount + 0.01, rimDot);
+                float3 rim = rimIntensity * _RimColor;
+                #else
+                float3 rim = 0;
+                #endif
+
+                return float4(saturate(lightingColor.rgb * albedo + specularColor.rgb + rim), 1);
             }
             ENDHLSL
         }
