@@ -1426,11 +1426,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 392522830876847754, guid: 8fdebc667d1bd8a47a7efa57b53dd5c6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fda767caf15dcd9468e699a5aaea9e6a, type: 2}
     - target: {fileID: 2348699764421447971, guid: 8fdebc667d1bd8a47a7efa57b53dd5c6,
         type: 3}
       propertyPath: m_Name
       value: Hotel
       objectReference: {fileID: 0}
+    - target: {fileID: 5723870899830627425, guid: 8fdebc667d1bd8a47a7efa57b53dd5c6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fda767caf15dcd9468e699a5aaea9e6a, type: 2}
     - target: {fileID: 7808423997984034822, guid: 8fdebc667d1bd8a47a7efa57b53dd5c6,
         type: 3}
       propertyPath: m_RootOrder
@@ -1444,7 +1454,7 @@ PrefabInstance:
     - target: {fileID: 7808423997984034822, guid: 8fdebc667d1bd8a47a7efa57b53dd5c6,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.67
       objectReference: {fileID: 0}
     - target: {fileID: 7808423997984034822, guid: 8fdebc667d1bd8a47a7efa57b53dd5c6,
         type: 3}
