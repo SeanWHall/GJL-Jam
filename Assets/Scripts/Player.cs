@@ -254,7 +254,7 @@ public class PlayerBoatState : PlayerState
       if (InputManager.Boat_Brake.IsPressed) Boat.Brake();
       else
       {
-         if (InputManager.Boat_LeftOar.IsPressed) Boat.RotateOar(Boat.Left_Oar);
+         if (InputManager.Boat_LeftOar.IsPressed)  Boat.RotateOar(Boat.Left_Oar);
          if (InputManager.Boat_RightOar.IsPressed) Boat.RotateOar(Boat.Right_Oar);
       }
 
