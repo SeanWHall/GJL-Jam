@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6262e014f168cdc4681ec57160dc329c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 5
+  Speed: 2
   Acceleration: 0.2
   MountDelay: 1
   Controller: {fileID: 4494543130054432525}
@@ -290,6 +290,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Main_character_Idle
       objectReference: {fileID: 0}
+    - target: {fileID: 3592506131919666903, guid: b0597844850ead74792a36d221e160cb,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 14dbc243627bef242a2274961d96446f, type: 2}
     - target: {fileID: 5866666021909216657, guid: b0597844850ead74792a36d221e160cb,
         type: 3}
       propertyPath: m_Controller
