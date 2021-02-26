@@ -177,7 +177,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 2
-  RotationSpeed: 6
+  AirbourneSpeed: 1.85
+  JumpHeight: 4
   MountDelay: 1
   Controller: {fileID: 4494543130054432525}
   AnimController: {fileID: 1781971861}
@@ -311,7 +312,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Main_character
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 09ab9371a8669644dae347ad6bc24dd2, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 09ab9371a8669644dae347ad6bc24dd2, type: 3}
 --- !u!4 &6569524595993601702 stripped
 Transform:

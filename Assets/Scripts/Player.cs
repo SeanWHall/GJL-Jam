@@ -6,11 +6,11 @@ public class Player : Character
 {
    public static Player Instance { get; private set; }
    
-   public float Speed           = 5f;
-   public float AirbourneSpeed  = 3f;
-   public float JumpHeight      = 6;
-   public float JumpChargeSpeed = 2f;
-   public float MountDelay      = 1f;
+   public float Speed          = 5f;
+   public float AirbourneSpeed = 3f;
+   public float JumpHeight     = 6;
+   public float JumpCooldown   = 0.5f;
+   public float MountDelay     = 1f;
    
    public CharacterController Controller;
    public Animator            AnimController;
@@ -60,8 +60,11 @@ public class PlayerState : CharacterState
 //Player is currently jumping
 public class PlayerJumpState : PlayerState
 {
+   public float NextJump;
    public float JumpVelocity;
    public PlayerJumpState(Player Player) : base(Player) {}
+
+   public bool CanJump => Time.time >= NextJump;
    
    public override void OnEnter()
    {
@@ -91,6 +94,7 @@ public class PlayerJumpState : PlayerState
    public override void OnLeave()
    {
       AnimController.SetBool("IsJumping", false);
+      NextJump = Time.time + Player.JumpCooldown;
    }
 }
 
@@ -106,10 +110,9 @@ public class PlayerLocomotionState : PlayerState
       
       if (Movement.magnitude > 0)
       {
-         if (Controller.isGrounded && InputManager.Character_Jump.IsPressed)
+         if (Controller.isGrounded && Player.JumpState.CanJump && InputManager.Character_Jump.IsPressed)
          {
-            //Transition into the jump state
-            Player.ActiveState = Player.JumpState;
+            Player.ActiveState = Player.JumpState; //Transition into the jump state
             return;
          }
          
