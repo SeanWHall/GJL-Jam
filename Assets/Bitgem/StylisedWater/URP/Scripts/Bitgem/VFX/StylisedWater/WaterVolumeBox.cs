@@ -22,19 +22,17 @@ namespace Bitgem.VFX.StylisedWater
         protected override void GenerateTiles(ref bool[,,] _tiles)
         {
             // calculate volume in tiles
-            var maxX = Mathf.Clamp(Mathf.RoundToInt(Dimensions.x / TileSize), 1, MAX_TILES_X);
-            var maxY = Mathf.Clamp(Mathf.RoundToInt(Dimensions.y / TileSize), 1, MAX_TILES_Y);
-            var maxZ = Mathf.Clamp(Mathf.RoundToInt(Dimensions.z / TileSize), 1, MAX_TILES_Z);
+            //var maxX = Mathf.Clamp(Mathf.RoundToInt(Dimensions.x / TileSize), 1, MAX_TILES_X);
+            //var maxY = Mathf.Clamp(Mathf.RoundToInt(Dimensions.y / TileSize), 1, MAX_TILES_Y);
+            //var maxZ = Mathf.Clamp(Mathf.RoundToInt(Dimensions.z / TileSize), 1, MAX_TILES_Z);
 
             // populate the tiles with a box volume
-            for (var x = 0; x < maxX; x++)
+            for (var x = 0; x < Dimensions.x; x++)
             {
-                for (var y = 0; y < maxY; y++)
+                for (var y = 0; y < Dimensions.y; y++)
                 {
-                    for (var z = 0; z < maxZ; z++)
-                    {
+                    for (var z = 0; z < Dimensions.z; z++)
                         _tiles[x, y, z] = true;
-                    }
                 }
             }
         }
