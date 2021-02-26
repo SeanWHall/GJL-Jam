@@ -117,7 +117,7 @@
             {
                 float2 UV;
                 #if _Gradient
-                UV = float2(_GradientX, saturate((Input.positionWS.y - _GradMinMax.x) / (_GradMinMax.y - _GradMinMax.x)));
+                UV = float2(_GradientX, saturate((Input.positionWSAndFog.y - _GradMinMax.x) / (_GradMinMax.y - _GradMinMax.x)));
                 #else
                 UV = Input.uv;
                 #endif
