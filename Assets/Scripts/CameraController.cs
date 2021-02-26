@@ -2,7 +2,8 @@
 
 public class CameraController : BaseBehaviour
 {
-   public static CameraController Instance { get; private set; }
+   public static CameraController Instance         { get; private set; }
+   public static float            WorldOrientation => Instance != null ? Instance.m_WorldOrientation : 0;
    
    public Camera Camera;
    
@@ -25,6 +26,8 @@ public class CameraController : BaseBehaviour
    
    public PlayerCameraState PlayerState;
    public BoatCameraState   BoatState;
+   
+   private float m_WorldOrientation;
 
    public override void OnEnable()
    {
@@ -37,7 +40,13 @@ public class CameraController : BaseBehaviour
       Instance    = this;
    }
 
-   public override void OnUpdate(float DeltaTime) => ActiveState?.OnUpdate();
+   public override void OnUpdate(float DeltaTime)
+   {
+      ActiveState?.OnUpdate();
+      
+      Vector3 Cam_FWD  = transform.forward;
+      m_WorldOrientation = Mathf.Atan2(Cam_FWD.x, Cam_FWD.z) * Mathf.Rad2Deg;
+   }
 
    public override void OnDisable()
    {

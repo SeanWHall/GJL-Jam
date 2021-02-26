@@ -14,9 +14,8 @@ public class InputManager : BaseBehaviour
     
     public InputButton UI_Pause;
     
-    public InputAxis   Character_Movement_Horizontal;
-    public InputAxis   Character_Movement_Vertical;
-    public InputButton Character_Mount;
+    public InputVector2 Character_Movement;
+    public InputButton  Character_Mount;
     
     public InputButton Boat_LeftOar;
     public InputButton Boat_RightOar;
@@ -40,9 +39,8 @@ public class InputManager : BaseBehaviour
         
         
         InputActionMap Player_Map = InputAsset.FindActionMap("Player");
-        Character_Movement_Horizontal = AddButton(new InputAxis(Player_Map.FindAction("Movement_Horizontal")));
-        Character_Movement_Vertical   = AddButton(new InputAxis(Player_Map.FindAction("Movement_Vertical")));
-        Character_Mount               = AddButton(new InputButton(Player_Map.FindAction("Mount")));
+        Character_Movement = AddButton(new InputVector2(Player_Map.FindAction("Movement")));
+        Character_Mount    = AddButton(new InputButton(Player_Map.FindAction("Mount")));
         
         Instance = this;
     }
@@ -68,6 +66,13 @@ public abstract class InputWrapper
     public InputWrapper(InputAction Action) => this.Action = Action;
 
     public abstract void Poll();
+}
+
+public class InputVector2 : InputWrapper
+{
+    public Vector2 Value;
+    public InputVector2(InputAction Action) : base(Action) {}
+    public override void Poll() => Value = Action.ReadValue<Vector2>();
 }
 
 public class InputAxis : InputWrapper

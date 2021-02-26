@@ -6,9 +6,9 @@ public class Player : Character
 {
    public static Player Instance { get; private set; }
 
-   public float               Speed        = 5f;
-   public float               Acceleration = 0.2f;
-   public float               MountDelay   = 1f;
+   public float               Speed         = 5f;
+   public float               RotationSpeed = 6f;
+   public float               MountDelay    = 1f;
    public CharacterController Controller;
    public Animator            AnimController;
 
@@ -39,24 +39,34 @@ public class PlayerState : CharacterState
    public CharacterController Controller     => Player.Controller;
    public Animator            AnimController => Player.AnimController;
 
+   public Vector3 OrientatedInput
+   {
+      get
+      {
+         Vector2    Input           = InputManager.Character_Movement.Value;
+         Quaternion Cam_Orientation = Quaternion.AngleAxis(CameraController.WorldOrientation, Vector3.up);
+         return Cam_Orientation * Vector3.ClampMagnitude(new Vector3(Input.x, 0, Input.y), 1.0f);
+      }
+   }
+   
    public PlayerState(Player Player) => this.Player = Player;
 }
 
 //Player is walking around
 public class PlayerLocomotionState : PlayerState
 {
-   public PlayerLocomotionState(Player Player) : base(Player)
-   {
-   }
+   public PlayerLocomotionState(Player Player) : base(Player) {}
 
    public override void OnUpdate()
    {
-      Vector3 Movement = new Vector3(InputManager.Character_Movement_Horizontal.Value, 0, InputManager.Character_Movement_Vertical.Value).normalized;
-      AnimController.transform.forward = Vector3.Lerp(AnimController.transform.forward, Movement, Time.deltaTime * 6f); //TODO: Make Whole Player rotate towards movement
-      
+      Vector3 Movement         = OrientatedInput;
+      Vector3 PlayerFwd        = Player.transform.forward;
+      PlayerFwd                =  Vector3.Normalize(Vector3.Lerp(PlayerFwd, Movement, Player.RotationSpeed * Time.deltaTime));
+      Player.transform.forward =  PlayerFwd;
+      PlayerFwd                *= Movement.magnitude * Player.Speed;
       
       AnimController.SetFloat("Speed", Movement.magnitude);
-      Controller.SimpleMove(Movement * Player.Speed);
+      Controller.SimpleMove(PlayerFwd);
 
       if (Boat.Instance.Dock != null && InputManager.Character_Mount.IsPressed)
       {
