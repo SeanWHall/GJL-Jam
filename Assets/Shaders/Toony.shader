@@ -68,13 +68,12 @@
 
             struct FragInput
             {
-                float2 uv           : TEXCOORD0;
-                float2 uvLM         : TEXCOORD1;
-                float3 positionWS   : TEXCOORD2;
-                float3 normalWS     : TEXCOORD3;
-                float4 shadowCoord : TEXCOORD6;
-                float4 positionCS   : SV_POSITION;
-                float2 screenUV : TEXCOORD7;
+                float2 uv               : TEXCOORD0;
+                float2 uvLM             : TEXCOORD1;
+                float4 positionWSAndFog : TEXCOORD2;
+                float3 normalWS         : TEXCOORD3;
+                float4 shadowCoord      : TEXCOORD6;
+                float4 positionCS       : SV_POSITION;
             };
 
             sampler2D _Albedo;
@@ -100,17 +99,17 @@
             
             FragInput LitPassVertex(VertInput input)
             {
-                FragInput output;
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                VertexNormalInputs vertexNormalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
+                VertexPositionInputs vertexInput       = GetVertexPositionInputs(input.positionOS.xyz);
+                VertexNormalInputs   vertexNormalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                output.positionCS  = vertexInput.positionCS;
-                output.uv          = input.uv;
-                output.uvLM        = input.uvLM.xy;
-                output.positionWS  = vertexInput.positionWS;
-                output.normalWS    = vertexNormalInput.normalWS;
-                output.shadowCoord = TransformWorldToShadowCoord(vertexInput.positionWS);
-                output.screenUV    = ComputeScreenPos(vertexInput.positionCS);
+                FragInput output;
+                output.positionCS           = vertexInput.positionCS;
+                output.uv                   = input.uv;
+                output.uvLM                 = input.uvLM.xy;
+                output.positionWSAndFog.xyz = vertexInput.positionWS;
+                output.positionWSAndFog.w   = ComputeFogFactor(vertexInput.positionCS.z);
+                output.normalWS             = vertexNormalInput.normalWS;
+                output.shadowCoord          = TransformWorldToShadowCoord(vertexInput.positionWS);
                 return output;
             }
 
@@ -154,7 +153,7 @@
                 uint pixelLightCount = GetAdditionalLightsCount();
                 for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
                 {
-                    Light light = GetAdditionalLight(lightIndex, input.positionWS);
+                    Light light = GetAdditionalLight(lightIndex, input.positionWSAndFog.xyz);
                     lightingColor += ToonyLighting(light, input.normalWS);
                     specularColor += ToonySpecular(light, input.normalWS, viewDirectionWS, smoothness);
                 }
@@ -187,11 +186,12 @@
             {
                 input.normalWS = SafeNormalize(input.normalWS);
                 
-                float3 viewDirectionWS = SafeNormalize(GetCameraPositionWS() - input.positionWS);
+                float3 viewDirectionWS = SafeNormalize(GetCameraPositionWS() - input.positionWSAndFog.xyz);
                 float3 albedo = tex2D(_Albedo,  CalculateAlbedoUV(input));
                 albedo += tex2D(_DirtMap, TRANSFORM_TEX(input.uv, _DirtMap)) * _DirtColor * _DirtStrength;
                 albedo = CalculateToonyLighting(input, albedo, viewDirectionWS);
                 albedo += CalculateRim(input, viewDirectionWS);
+                albedo = MixFog(albedo, input.positionWSAndFog.w);
                 
                 return float4(saturate(albedo), 1);
             }
