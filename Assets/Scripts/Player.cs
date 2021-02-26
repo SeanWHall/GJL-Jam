@@ -102,6 +102,7 @@ public class PlayerBoatState : PlayerState
       Player.Controller.enabled = false;
       Player.transform.SetParent(Boat.PlayerSeat);
       Player.transform.localPosition = Vector3.zero;
+      Player.transform.rotation      = Boat.PlayerSeat.rotation;
 
       AnimController.SetBool("Sitting", true);
 
@@ -124,6 +125,15 @@ public class PlayerBoatState : PlayerState
          if (CurrentTime > NextAllowedMountChange)
             Player.ActiveState = Player.LocomotionState;
       }
+   }
+
+   public override void OnAnimatorIK(int LayerIDx)
+   {
+      AnimController.SetIKPosition(AvatarIKGoal.LeftHand,  Boat.Left_Oar.IKPoint.position);
+      AnimController.SetIKPosition(AvatarIKGoal.RightHand, Boat.Right_Oar.IKPoint.position);
+      
+      AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
+      AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
    }
 
    public override void OnLeave()
