@@ -85,7 +85,6 @@
             float _GradientX;
             
             sampler2D _SpecularMask;
-            float4 _SpecularMask_ST;
             float _SpecularRotation;
             float2 _SpecularTilling;
             float3 _SpecularColor;
@@ -140,7 +139,7 @@
                 rMatrix = rMatrix * 2 - 1;
                 UV.xy = mul(UV.xy, rMatrix);
                 UV += float2(0.5, 0.5);
-                return TRANSFORM_TEX(UV * _SpecularTilling, _SpecularMask);
+                return UV * _SpecularTilling;
             }
             
             float4 ToonyLighting(Light light, float3 normalWS)
