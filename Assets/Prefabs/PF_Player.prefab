@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 4078453673824350057}
   - component: {fileID: 4494543130054432525}
   - component: {fileID: 1781971861}
-  - component: {fileID: 7268964236919384074}
+  - component: {fileID: 6750557938675452419}
   m_Layer: 0
   m_Name: PF_Player
   m_TagString: Untagged
@@ -219,7 +219,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &7268964236919384074
+--- !u!114 &6750557938675452419
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b73b4d9f03e94d409d20c73062ddedc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FootstepSoundClips:
+  AudioClipFileArray:
   - {fileID: 8300000, guid: c5f3554dc00770645b10491b5772e755, type: 3}
   - {fileID: 8300000, guid: 06bec5499e528a740822981b418ffa6b, type: 3}
   - {fileID: 8300000, guid: bc50e96ef1fae3d499f1029001ce7de4, type: 3}
@@ -241,9 +241,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 384189a1e3828f0429ac6bf352693dd9, type: 3}
   - {fileID: 8300000, guid: 782525c7745e31c42beded0210ea7c98, type: 3}
   AudioSourceGameObject: {fileID: 2013845741756224546}
-  VolumeMin: 1
+  VolumeMin: 0.8
   VolumeMax: 1
-  PitchMin: 1
+  PitchMin: 0.7
   PitchMax: 1
 --- !u!1001 &6674645454444986701
 PrefabInstance:

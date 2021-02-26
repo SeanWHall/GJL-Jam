@@ -9,7 +9,7 @@ public class RandomAudioContainer : MonoBehaviour
 {
     [Header("Audio Clip Array")]
     [Space(10)]
-    public AudioClip[] FootstepSoundClips; // TB - Footstep sound file array
+    public AudioClip[] AudioClipFileArray; // TB - Footstep sound file array
     [Header("Audio Source")]
     [Space(10)]
     public AudioSource AudioSourceGameObject; // TB - The audio source where the footstep sounds should play back from.
@@ -31,9 +31,9 @@ public class RandomAudioContainer : MonoBehaviour
 
         AudioSourceGameObject.pitch = Random.Range(PitchMin, PitchMax);
         AudioSourceGameObject.volume = Random.Range(PitchMin, PitchMax);
-        PickedFootstep = RepeatCheck(PickedFootstep, FootstepSoundClips.Length);
-        AudioSourceGameObject.PlayOneShot(FootstepSoundClips[PickedFootstep]);
-        Debug.Log("Right footstep walk: " + PickedFootstep + AudioSourceGameObject.volume + AudioSourceGameObject.pitch);
+        PickedFootstep = RepeatCheck(PickedFootstep, AudioClipFileArray.Length);
+        AudioSourceGameObject.PlayOneShot(AudioClipFileArray[PickedFootstep]);
+        // Debug.Log("Right footstep walk: " + PickedFootstep + AudioSourceGameObject.volume + AudioSourceGameObject.pitch);
     }
 
     public void footstepWalkLeft()
@@ -43,9 +43,9 @@ public class RandomAudioContainer : MonoBehaviour
 
         AudioSourceGameObject.pitch = Random.Range(PitchMin, PitchMax);
         AudioSourceGameObject.volume = Random.Range(PitchMin, PitchMax);
-        PickedFootstep = RepeatCheck(PickedFootstep, FootstepSoundClips.Length);
-        AudioSourceGameObject.PlayOneShot(FootstepSoundClips[PickedFootstep]);
-        Debug.Log("Left footstep walk: " + PickedFootstep + AudioSourceGameObject.volume + AudioSourceGameObject.pitch);
+        PickedFootstep = RepeatCheck(PickedFootstep, AudioClipFileArray.Length);
+        AudioSourceGameObject.PlayOneShot(AudioClipFileArray[PickedFootstep]);
+        // Debug.Log("Left footstep walk: " + PickedFootstep + AudioSourceGameObject.volume + AudioSourceGameObject.pitch);
     }
     int RepeatCheck(int previousIndex, int range) // This section checks whether a clip has already been selected, and chooses another if so.
     {
