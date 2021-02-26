@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: b0597844850ead74792a36d221e160cb
+guid: 1e288eef9b258d04bbd626232f71578c
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: Idle
+    second: Jump
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -24,7 +24,12 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     rigImportErrors: 
-    rigImportWarnings: 
+    rigImportWarnings: "Copied Avatar Rig Configuration mis-match. Bone length in
+      copied configuration does not match position in animation file:\n\t'mixamorig:LeftUpLeg'
+      : position error = 229.114120 mm\n\t'mixamorig:LeftLeg' : position error =
+      23.412664 mm\n\t'mixamorig:LeftFoot' : position error = 3.771246 mm\n\t'mixamorig:RightUpLeg'
+      : position error = 229.006927 mm\n\t'mixamorig:RightLeg' : position error =
+      23.389341 mm\n\t'mixamorig:RightFoot' : position error = 3.774554 mm\n"
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -40,18 +45,18 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Idle
+      name: Jump
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 298
+      lastFrame: 30
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 1
+      loopTime: 0
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
