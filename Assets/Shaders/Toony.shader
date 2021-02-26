@@ -6,9 +6,9 @@
         [Toggle(_Gradient)] _Gradient("Is Gradient", Float) = 1.0
         _GradientX("Gradient X", Range(0, 1)) = 0
         
-        _SpecularColor("Specular", Color) = (0.2, 0.2, 0.2)
+        _SpecularColor("Specular", Color) = (0.7, 0.7, 0.7)
         _SpecularRotation("Specular Rotation", Range(0.0, 360)) = 70
-        _SpecularTilling("Specular Tilling", Vector) = (0.5, 0.5, 0, 0)
+        _SpecularTilling("Specular Tilling", Vector) = (20, 20, 0, 0)
         _SpecularSmoothness("Specular Smoothness", Range(0.0, 1.0)) = 0.5
         
         _DirtColor("Dirt Color", Color) = (1, 1, 1)
