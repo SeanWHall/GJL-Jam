@@ -7,8 +7,7 @@
         _GradientX("Gradient X", Range(0, 1)) = 0
         
         _SpecularColor("Specular", Color) = (0.7, 0.7, 0.7)
-        _SpecularRotation("Specular Rotation", Range(0.0, 360)) = 70
-        _SpecularTilling("Specular Tilling", Vector) = (20, 20, 0, 0)
+        _SpecularTilling("Specular Tilling", float) = 20
         _SpecularSmoothness("Specular Smoothness", Range(0.0, 1.0)) = 0.5
         
         _DirtColor("Dirt Color", Color) = (1, 1, 1)
@@ -85,8 +84,7 @@
             float _GradientX;
             
             sampler2D _SpecularMask;
-            float _SpecularRotation;
-            float2 _SpecularTilling;
+            float _SpecularTilling;
             float3 _SpecularColor;
             float _SpecularSmoothness;
 
@@ -108,7 +106,7 @@
 
                 output.positionCS  = vertexInput.positionCS;
                 output.uv          = input.uv;
-                output.uvLM        = input.uvLM.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+                output.uvLM        = input.uvLM.xy;
                 output.positionWS  = vertexInput.positionWS;
                 output.normalWS    = vertexNormalInput.normalWS;
                 output.shadowCoord = TransformWorldToShadowCoord(vertexInput.positionWS);
@@ -125,21 +123,6 @@
                 UV = Input.uv;
                 #endif
                 return TRANSFORM_TEX(UV, _Albedo);
-            }
-            
-            float2 CalculateSpecularUV(float2 UV)
-            {
-                float Rotation = _SpecularRotation * (3.1415926f/180.0f);
-                UV -= float2(0.5, 0.5);
-                float s = sin(Rotation);
-                float c = cos(Rotation);
-                float2x2 rMatrix = float2x2(c, -s, s, c);
-                rMatrix *= 0.5;
-                rMatrix += 0.5;
-                rMatrix = rMatrix * 2 - 1;
-                UV.xy = mul(UV.xy, rMatrix);
-                UV += float2(0.5, 0.5);
-                return UV * _SpecularTilling;
             }
             
             float4 ToonyLighting(Light light, float3 normalWS)
@@ -159,7 +142,7 @@
             float3 CalculateToonyLighting(FragInput input, float3 Albedo, float3 viewDirectionWS)
             {
                 float  smoothness      = exp(_SpecularSmoothness * 10 + 1);     
-                float3 bakedGI         = SampleLightmap(input.uvLM, input.normalWS);
+                float3 bakedGI         = SampleLightmap(input.uvLM * unity_LightmapST.xy + unity_LightmapST.zw, input.normalWS);
                 Light  mainLight       = GetMainLight(input.shadowCoord);
                 
                 MixRealtimeAndBakedGI(mainLight, input.normalWS, bakedGI, half4(0, 0, 0, 0));
@@ -184,7 +167,7 @@
                 lightingColor.rgb += bakedGI;
 
                 specularColor.rgb *= tex2D(_SpecularRamp, float2(saturate(specularColor.a / pixelLightCount), 0)).r;
-                specularColor.rgb *= tex2D(_SpecularMask, CalculateSpecularUV(input.uvLM)).r;
+                specularColor.rgb *= tex2D(_SpecularMask, input.uvLM * _SpecularTilling).r;
 
                 return Albedo * lightingColor + specularColor;
             }

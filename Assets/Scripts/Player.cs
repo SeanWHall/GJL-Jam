@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,24 +12,33 @@ public class Player : Character
    public float JumpHeight     = 6;
    public float JumpCooldown   = 0.5f;
    public float MountDelay     = 1f;
-   
-   public CharacterController Controller;
-   public Animator            AnimController;
 
-   public PlayerLocomotionState LocomotionState;
-   public PlayerBoatState       BoatState;
-   public PlayerJumpState       JumpState;
+   [NonSerialized] public Renderer[]          Renderers;
+   [NonSerialized] public CharacterController Controller;
+   [NonSerialized] public Animator            AnimController;
+   [NonSerialized] public Vector3             LastSafePosition; //Respawn points
+   
+   public PlayerLocomotionState  LocomotionState;
+   public PlayerBoatState        BoatState;
+   public PlayerJumpState        JumpState;
+   public PlayerChangeMountState MountState;
    
    public override void OnEnable()
    {
       base.OnEnable();
       Instance = this;
 
+      Controller     = GetComponent<CharacterController>();
+      AnimController = GetComponent<Animator>();
+      Renderers      = GetComponentsInChildren<Renderer>();
+      
       LocomotionState = new PlayerLocomotionState(this);
       BoatState       = new PlayerBoatState(this);
       JumpState       = new PlayerJumpState(this);
+      MountState      = new PlayerChangeMountState(this);
 
-      ActiveState = LocomotionState;
+      ActiveState      = LocomotionState;
+      LastSafePosition = transform.position;
    }
 
    public override void OnDisable()
@@ -36,6 +46,31 @@ public class Player : Character
       base.OnDisable();
       Instance = null;
    }
+
+   public void Respawn()
+   {
+      HUD.Instance.FadeScreen(1.5f, 0.5f, OnFadeScreenEvent);
+      void OnFadeScreenEvent(HUD.eFadeScreenEvent Event)
+      {
+         if (Event != HUD.eFadeScreenEvent.Middle)
+            return;
+         
+         //Wait for the screen to be black, before moving the player
+         Controller.enabled = false;
+         transform.position = LastSafePosition;
+         CameraController.Instance.PlayerState.UpdateCamera();
+         Controller.enabled = true;
+      }
+   }
+
+   public void SetRenderingState(bool State)
+   {
+      int Len = Renderers.Length;
+      for (int i = 0; i < Len; i++)
+         Renderers[i].enabled = State;
+   }
+
+   public static bool IsPartOfPlayer(Collider Col) => Instance != null && Col.GetComponentInChildren<Player>() == Instance || Col.GetComponentInParent<Player>() == Instance;
 }
 
 public class PlayerState : CharacterState
@@ -123,17 +158,87 @@ public class PlayerLocomotionState : PlayerState
       AnimController.SetFloat("Speed", Movement.magnitude);
       Controller.Move((Velocity + Physics.gravity) * Time.deltaTime);
 
-      if (Boat.Instance.Dock != null && InputManager.Character_Mount.IsPressed)
+      if (Boat.Instance.Dock != null)
       {
-         PlayerBoatState BoatState   = Player.BoatState;
-         float           CurrentTime = Time.time;
-
-         if (CurrentTime > BoatState.NextAllowedMountChange)
-         {
+         Player.LastSafePosition = Boat.Instance.Dock.ExitPoint.position;
+         if (InputManager.Character_Mount.IsPressed && Player.MountState.AttemptMountChange(true))
             AnimController.SetFloat("Speed", 0f);
-            Player.ActiveState = BoatState;
-         }
       }
+   }
+}
+
+public class PlayerChangeMountState : PlayerState
+{
+   public float NextAllowedMountChange;
+   public bool  Mounting;
+
+   public bool AttemptMountChange(bool IsMounting)
+   {
+      if (Time.time < NextAllowedMountChange)
+         return false;
+
+      Mounting           = IsMounting;
+      Player.ActiveState = this;
+      return true;
+   }
+   
+   public PlayerChangeMountState(Player player) : base(player) { }
+
+   public override void OnEnter()
+   {
+      base.OnEnter();
+      
+      HUD.Instance.FadeScreen(1.5f, 0.5f, OnFadeScreenEvent);
+   }
+   
+   void OnFadeScreenEvent(HUD.eFadeScreenEvent Event)
+   {
+      if (Event == HUD.eFadeScreenEvent.Middle)
+      {
+         //Do The Mounting Change logic
+         if (Mounting) MountBoat();
+         else          UnMountBoat();
+         
+         return;
+      }
+         
+      //Fade has finished, transition to the next state
+      Player.ActiveState = Mounting ? (CharacterState) Player.BoatState : Player.LocomotionState;
+   }
+
+   private void MountBoat()
+   {
+      //Mount Player to Boat
+      NextAllowedMountChange = Time.time + Player.MountDelay;
+
+      Player.Controller.enabled = false;
+      Player.transform.SetParent(Boat.Instance.PlayerSeat);
+      Player.transform.localPosition = Vector3.zero;
+      Player.transform.rotation      = Boat.Instance.PlayerSeat.rotation;
+
+      AnimController.SetBool("Sitting", true);
+      AnimController.SetFloat("Speed", 0f);
+
+      //Enable the Boat Physics
+      Boat.Instance.Rigid.isKinematic = false;
+   }
+
+   private void UnMountBoat()
+   {
+      //Unmount Player to boat
+      NextAllowedMountChange = Time.time + Player.MountDelay;
+
+      //Disable the Boat Physics
+      Boat.Instance.Rigid.velocity        = Vector3.zero;
+      Boat.Instance.Rigid.angularVelocity = Vector3.zero;
+      Boat.Instance.Rigid.isKinematic     = true;
+
+
+      AnimController.SetBool("Sitting", false);
+
+      Player.Controller.enabled = true;
+      Player.transform.SetParent(null);
+      Player.transform.position = Boat.Instance.Dock.ExitPoint.position;
    }
 }
 
@@ -141,29 +246,9 @@ public class PlayerLocomotionState : PlayerState
 public class PlayerBoatState : PlayerState
 {
    public Boat  Boat => Boat.Instance;
-   public float NextAllowedMountChange;
 
    public PlayerBoatState(Player Player) : base(Player) { }
-
-   public override void OnEnter()
-   {
-      base.OnEnter();
-      
-      //Mount Player to Boat
-      NextAllowedMountChange = Time.time + Player.MountDelay;
-
-      Player.Controller.enabled = false;
-      Player.transform.SetParent(Boat.PlayerSeat);
-      Player.transform.localPosition = Vector3.zero;
-      Player.transform.rotation      = Boat.PlayerSeat.rotation;
-
-      AnimController.SetBool("Sitting", true);
-      AnimController.SetFloat("Speed", 0f);
-
-      //Enable the Boat Physics
-      Boat.Rigid.isKinematic = false;
-   }
-
+   
    public override void OnUpdate()
    {
       if (InputManager.Boat_Brake.IsPressed) Boat.Brake();
@@ -174,11 +259,7 @@ public class PlayerBoatState : PlayerState
       }
 
       if (Boat.Dock != null && InputManager.Character_Mount.IsPressed)
-      {
-         float CurrentTime = Time.time;
-         if (CurrentTime > NextAllowedMountChange)
-            Player.ActiveState = Player.LocomotionState;
-      }
+         Player.MountState.AttemptMountChange(false);
    }
 
    public override void OnAnimatorIK(int LayerIDx)
@@ -188,23 +269,5 @@ public class PlayerBoatState : PlayerState
       
       AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
       AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
-   }
-
-   public override void OnLeave()
-   {
-      //Unmount Player to boat
-      NextAllowedMountChange = Time.time + Player.MountDelay;
-
-      //Disable the Boat Physics
-      Boat.Rigid.velocity        = Vector3.zero;
-      Boat.Rigid.angularVelocity = Vector3.zero;
-      Boat.Rigid.isKinematic     = true;
-
-
-      AnimController.SetBool("Sitting", false);
-
-      Player.Controller.enabled = true;
-      Player.transform.SetParent(null);
-      Player.transform.position = Boat.Dock.ExitPoint.position;
    }
 }

@@ -131,6 +131,16 @@ public class PlayerCameraState : CameraState
       InterpolateSpeed = Speed;
       Alpha            = 0f;
    }
+
+   public void UpdateCamera()
+   {
+      Current = Target;
+      Alpha   = 1f;
+      
+      Camera.fieldOfView        = Current.FOV;
+      Camera.transform.forward  = Current.Direction;
+      Camera.transform.position = Current.CalculatePosition(Player.Instance.transform.position);
+   }
 }
 
 public class BoatCameraState : CameraState
