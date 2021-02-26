@@ -27,10 +27,11 @@ public class Character : BaseBehaviour
 
 public class CharacterState
 {
+   public float        TimeInState = 0;
    public InputManager InputManager => InputManager.Instance;
-   
-   public virtual void OnEnter()  {}
-   public virtual void OnUpdate() {}
+
+   public virtual void OnEnter()  => TimeInState = 0;
+   public virtual void OnUpdate() => TimeInState += Time.unscaledDeltaTime;
    public virtual void OnAnimatorIK(int LayerIDx) {}
    public virtual void OnLeave() {}
 }

@@ -5,16 +5,20 @@ using UnityEngine;
 public class Player : Character
 {
    public static Player Instance { get; private set; }
-
-   public float               Speed         = 5f;
-   public float               RotationSpeed = 6f;
-   public float               MountDelay    = 1f;
+   
+   public float Speed           = 5f;
+   public float AirbourneSpeed  = 3f;
+   public float JumpHeight      = 6;
+   public float JumpChargeSpeed = 2f;
+   public float MountDelay      = 1f;
+   
    public CharacterController Controller;
    public Animator            AnimController;
 
    public PlayerLocomotionState LocomotionState;
    public PlayerBoatState       BoatState;
-
+   public PlayerJumpState       JumpState;
+   
    public override void OnEnable()
    {
       base.OnEnable();
@@ -22,6 +26,7 @@ public class Player : Character
 
       LocomotionState = new PlayerLocomotionState(this);
       BoatState       = new PlayerBoatState(this);
+      JumpState       = new PlayerJumpState(this);
 
       ActiveState = LocomotionState;
    }
@@ -52,6 +57,43 @@ public class PlayerState : CharacterState
    public PlayerState(Player Player) => this.Player = Player;
 }
 
+//Player is currently jumping
+public class PlayerJumpState : PlayerState
+{
+   public float JumpVelocity;
+   public PlayerJumpState(Player Player) : base(Player) {}
+   
+   public override void OnEnter()
+   {
+      base.OnEnter();
+      JumpVelocity = Player.JumpHeight * OrientatedInput.normalized.magnitude; //Shorten Jump Height if not moving
+      AnimController.SetBool("IsJumping", true);
+   }
+
+   public override void OnUpdate()
+   {
+      base.OnUpdate();
+      
+      Vector3 Velocity = OrientatedInput;
+      Player.transform.forward = Velocity;
+      
+      Velocity   *= Player.AirbourneSpeed;
+      Velocity.y =  JumpVelocity;
+      
+      Controller.Move(Velocity * Time.deltaTime);
+      
+      JumpVelocity += Physics.gravity.y * Time.deltaTime;
+      
+      if (TimeInState > 0.5f && Controller.isGrounded)
+         Player.ActiveState = Player.LocomotionState;
+   }
+
+   public override void OnLeave()
+   {
+      AnimController.SetBool("IsJumping", false);
+   }
+}
+
 //Player is walking around
 public class PlayerLocomotionState : PlayerState
 {
@@ -59,14 +101,24 @@ public class PlayerLocomotionState : PlayerState
 
    public override void OnUpdate()
    {
-      Vector3 Movement         = OrientatedInput;
-      Vector3 PlayerFwd        = Player.transform.forward;
-      PlayerFwd                =  Vector3.Normalize(Vector3.Lerp(PlayerFwd, Movement, Player.RotationSpeed * Time.deltaTime));
-      Player.transform.forward =  PlayerFwd;
-      PlayerFwd                *= Movement.magnitude * Player.Speed;
+      Vector3 Movement = OrientatedInput;
+      Vector3 Velocity = Vector3.zero;
+      
+      if (Movement.magnitude > 0)
+      {
+         if (Controller.isGrounded && InputManager.Character_Jump.IsPressed)
+         {
+            //Transition into the jump state
+            Player.ActiveState = Player.JumpState;
+            return;
+         }
+         
+         Velocity = Movement * Player.Speed;
+         Player.transform.forward = Movement;
+      }
       
       AnimController.SetFloat("Speed", Movement.magnitude);
-      Controller.SimpleMove(PlayerFwd);
+      Controller.Move((Velocity + Physics.gravity) * Time.deltaTime);
 
       if (Boat.Instance.Dock != null && InputManager.Character_Mount.IsPressed)
       {
@@ -74,13 +126,11 @@ public class PlayerLocomotionState : PlayerState
          float           CurrentTime = Time.time;
 
          if (CurrentTime > BoatState.NextAllowedMountChange)
+         {
+            AnimController.SetFloat("Speed", 0f);
             Player.ActiveState = BoatState;
+         }
       }
-   }
-
-   public override void OnLeave()
-   {
-      AnimController.SetFloat("Speed", 0f);
    }
 }
 
@@ -90,12 +140,12 @@ public class PlayerBoatState : PlayerState
    public Boat  Boat => Boat.Instance;
    public float NextAllowedMountChange;
 
-   public PlayerBoatState(Player Player) : base(Player)
-   {
-   }
+   public PlayerBoatState(Player Player) : base(Player) { }
 
    public override void OnEnter()
    {
+      base.OnEnter();
+      
       //Mount Player to Boat
       NextAllowedMountChange = Time.time + Player.MountDelay;
 
@@ -105,6 +155,7 @@ public class PlayerBoatState : PlayerState
       Player.transform.rotation      = Boat.PlayerSeat.rotation;
 
       AnimController.SetBool("Sitting", true);
+      AnimController.SetFloat("Speed", 0f);
 
       //Enable the Boat Physics
       Boat.Rigid.isKinematic = false;
