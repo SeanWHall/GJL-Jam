@@ -1,5 +1,19 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!244 &-9221364889619487015
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 0afed286bc5df204a9bd6ccb2818ed44
+  m_EffectName: Attenuation
+  m_MixLevel: ee27d5e7c7638d94795884e47dc524e3
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!244 &-8894568215575060122
 AudioMixerEffectController:
   m_ObjectHideFlags: 3
@@ -189,6 +203,7 @@ AudioMixerController:
     - af9838efde2788f4789ad07d9315442e
     - 93e9045e6dc83cd4e96569d117616aad
     - f3201362ff9d7824b81a08ee6cae7d41
+    - 594074de6c2e75e42a74ba16cbb729a7
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 1188880614653089716}
@@ -252,6 +267,7 @@ AudioMixerSnapshotController:
     c6e5b3a315d9f80478ee667593e1ce33: -6.133707
     d1ea6715732025149857a2f072e56e11: -10.345207
     acc63b8971a37cf4787d78a3e734aaea: -80
+    1e4b686b71c5207459b92e55601708eb: -5.7224774
     083583be5fce4e74dbfd9132d58aae5a: -0.43201196
   m_TransitionOverrides: {}
 --- !u!243 &3222531144376125745
@@ -292,6 +308,25 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!243 &5152674364964041551
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: StreetAmbience
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 594074de6c2e75e42a74ba16cbb729a7
+  m_Children: []
+  m_Volume: 1e4b686b71c5207459b92e55601708eb
+  m_Pitch: c03e3b45440fde043939b6abf3f6f5d6
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -9221364889619487015}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!245 &5301976886589965370
 AudioMixerSnapshotController:
   m_ObjectHideFlags: 0
@@ -315,6 +350,7 @@ AudioMixerGroupController:
   m_GroupID: 93e9045e6dc83cd4e96569d117616aad
   m_Children:
   - {fileID: 4664229306251852880}
+  - {fileID: 5152674364964041551}
   m_Volume: 17b906003585dad41a25bee2f03bbb02
   m_Pitch: 87014f25d3be47d458a24877e96ac4f4
   m_Send: 00000000000000000000000000000000
