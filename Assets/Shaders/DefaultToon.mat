@@ -95,25 +95,26 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DirtStrength: 0.292
+    - _DirtStrength: 0.146
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Gradient: 1
+    - _GradientX: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _RIM_HIGHLIGHT: 1
     - _ReceiveShadows: 1
-    - _RimAmount: 0.768
+    - _RimAmount: 0
     - _RimHighlight: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularRotation: 45
-    - _SpecularSmoothness: 0.2
+    - _SpecularSmoothness: 0.067
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 1
