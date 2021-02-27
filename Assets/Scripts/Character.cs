@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character : BaseBehaviour
+public abstract class Character : BaseBehaviour
 {
    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
+   public string Name; //Used to match in dialogue
+   
    private CharacterState _ActiveState;
    public CharacterState ActiveState
    {
@@ -20,6 +22,8 @@ public class Character : BaseBehaviour
          _ActiveState?.OnEnter();
       }
    }
+
+   public abstract void OnDialogueEvent(DialogueEvent Ev);
 
    public override void OnUpdate(float DeltaTime)    => _ActiveState?.OnUpdate();
    protected virtual void OnAnimatorIK(int LayerIDx) => _ActiveState?.OnAnimatorIK(LayerIDx);

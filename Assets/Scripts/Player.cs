@@ -32,6 +32,7 @@ public class Player : Character
    public PlayerBoatState        BoatState;
    public PlayerJumpState        JumpState;
    public PlayerChangeMountState MountState;
+   public PlayerDialogueState    DialogueState;
 
    //Just going to hard code it, normally I'd write an interaction system
    //But it aint worth it for one interaction
@@ -54,11 +55,18 @@ public class Player : Character
       BoatState       = new PlayerBoatState(this);
       JumpState       = new PlayerJumpState(this);
       MountState      = new PlayerChangeMountState(this);
+      DialogueState   = new PlayerDialogueState(this);
 
       ActiveState      = LocomotionState;
       LastSafePosition = transform.position;
 
       PlayerAudioSource = GetComponent<AudioSource>(); // Tom
+   }
+
+   public override void OnDialogueEvent(DialogueEvent Ev)
+   {
+      if (Ev is DialogueEnterEvent) ActiveState     = DialogueState;
+      else if(Ev is DialogueLeaveEvent) ActiveState = LocomotionState;
    }
 
    public override void OnUpdate(float DeltaTime)
@@ -408,4 +416,9 @@ public class PlayerBoatState : PlayerState
       base.OnLeave();
       Player.CanPlayerInteract = false;
    }
+}
+
+public class PlayerDialogueState : PlayerState
+{
+   public PlayerDialogueState(Player Player) : base(Player) { }
 }

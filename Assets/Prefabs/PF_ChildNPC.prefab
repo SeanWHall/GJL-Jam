@@ -176,6 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef7ae0a7c78dac743b297067a50407e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Name: Lost Child
   HandHoldHeight: 0.5
   DesiredDistance: 0.3
   BreakDistance: 2

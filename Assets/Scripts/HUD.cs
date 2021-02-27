@@ -1,7 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
+
+[System.Serializable]
+public class DialogueOptionUI
+{
+    public GameObject Root;
+    public Button     Button;
+    public Text       Text;
+}
 
 public class HUD : BaseBehaviour
 {
@@ -9,15 +18,24 @@ public class HUD : BaseBehaviour
     
     public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
+    [Header("General")]
     public RectTransform RootRect;
     public RawImage      BlackScreen;
+    
+    [Header("Interaction UI")]
     public RectTransform InteractableRoot;
     public Text          InteractableText;
 
+    [Header("Dialogue")] 
+    public RectTransform      Dialogue_Root;
+    public Text               Dialogue_Text;
+    public DialogueOptionUI[] Dialogue_OptionButtons;
+    
     private Camera        m_Camera; //TODO: Update this camera
     private IInteractable m_Interactable;
     private Coroutine     m_Fade_Routine;
     private Shader        m_Toony_Shader;
+    private int           m_Dialogue_OptionsVisible;
 
     private Camera Camera
     {
@@ -34,6 +52,7 @@ public class HUD : BaseBehaviour
         base.OnEnable();
 
         m_Toony_Shader = Shader.Find("Toony");
+        HideDialogue();
         
         RootRect = (RectTransform) transform;
         BlackScreen.gameObject.SetActive(false);
@@ -57,6 +76,44 @@ public class HUD : BaseBehaviour
             InteractableRoot.anchoredPosition = WorldPointToCanvasPoint(m_Interactable.Position);
             InteractableText.text             = m_Interactable.InteractionText; //TODO: This creates a fair bit of GC, but its fine for this jam
         }
+    }
+
+    public void HideDialogue()
+    {
+        ClearDialogueOptions();
+        Dialogue_Root.gameObject.SetActive(false);
+    }
+    
+    public void ShowDialogue()
+    {
+        Dialogue_Root.gameObject.SetActive(true);
+    }
+
+    public void ClearDialogueOptions()
+    {
+        int Len = Dialogue_OptionButtons.Length;
+        for (int i = 0; i < Len; i++)
+        {
+            Dialogue_OptionButtons[i].Root.SetActive(false);
+            Dialogue_OptionButtons[i].Button.onClick.RemoveAllListeners();
+        }
+
+        m_Dialogue_OptionsVisible = 0;
+    }
+    
+    public void AddDialogueOption(string Text, UnityAction Listener)
+    {
+        if (m_Dialogue_OptionsVisible >= Dialogue_OptionButtons.Length)
+        {
+            Error("Failed to Add new Dialogue Option, as we have ran out of options");
+            return;
+        }
+
+        //We are using pre-created UI Elements, to save on GC & Performance spent recreating the Canvas
+        DialogueOptionUI Option = Dialogue_OptionButtons[m_Dialogue_OptionsVisible++];
+        Option.Root.SetActive(true); //todo: Could do with some fading, doesn't look to good everything just appearing.. Polish though
+        Option.Text.text =  Text; //Text text text... Doesn't read well
+        Option.Button.onClick.AddListener(Listener);
     }
 
     public void HideInteractionUI()

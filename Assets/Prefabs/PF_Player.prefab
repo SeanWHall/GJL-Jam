@@ -177,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6262e014f168cdc4681ec57160dc329c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Name: Player
   Speed: 2
   AirbourneSpeed: 1.85
   JumpHeight: 4

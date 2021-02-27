@@ -17,6 +17,7 @@ public class NPC : Character
     public NPCIdleState      IdleState;
     public NPCBoatState      BoatState;
     public NPCFollowingState FollowingState;
+    public NPCDialogueState  DialogueState;
     
     public override void OnEnable()
     {
@@ -28,8 +29,15 @@ public class NPC : Character
         IdleState      = new NPCIdleState(this);
         BoatState      = new NPCBoatState(this);
         FollowingState = new NPCFollowingState(this);
+        DialogueState  = new NPCDialogueState(this);
 
         ActiveState = IdleState;
+    }
+    
+    public override void OnDialogueEvent(DialogueEvent Ev)
+    {
+        if (Ev is DialogueEnterEvent) ActiveState     = DialogueState;
+        else if(Ev is DialogueLeaveEvent) ActiveState = IdleState;
     }
 }
 
@@ -113,4 +121,9 @@ public class NPCFollowingState : NPCState
         base.OnLeave();
         Player.Following = null;
     }
+}
+
+public class NPCDialogueState : NPCState
+{
+    public NPCDialogueState(NPC NPC) : base(NPC) {}
 }
