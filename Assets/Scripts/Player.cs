@@ -333,7 +333,7 @@ public class PlayerChangeMountState : PlayerState
 
         Debug.Log("EnterBoat"); // Tom
 
-      CameraController.Instance.ActiveState = CameraController.Instance.BoatState;
+      //CameraController.Instance.ActiveState = CameraController.Instance.BoatState;
 
       //Enable the Boat Physics
       Boat.Instance.Rigid.isKinematic = false;
@@ -359,7 +359,7 @@ public class PlayerChangeMountState : PlayerState
         Debug.Log("ExitBoat"); // Tom
 
 
-      CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
+      //CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
 
       AnimController.SetBool("Sitting", false);
 
