@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Player : Character
 {
@@ -16,12 +17,20 @@ public class Player : Character
    [NonSerialized] public Renderer[]          Renderers;
    [NonSerialized] public CharacterController Controller;
    [NonSerialized] public Animator            AnimController;
+   [NonSerialized] public NavMeshObstacle     NavObstacle;
    [NonSerialized] public Vector3             LastSafePosition; //Respawn points
    
    public PlayerLocomotionState  LocomotionState;
    public PlayerBoatState        BoatState;
    public PlayerJumpState        JumpState;
    public PlayerChangeMountState MountState;
+
+   //Just going to hard code it, normally I'd write an interaction system
+   //But it aint worth it for one interaction
+   [NonSerialized] public NPC          Following;
+   [NonSerialized] public bool         LeftSide = false;
+   [NonSerialized] public Vector3      HandGoal;
+   [NonSerialized] public AvatarIKGoal IKGoal;
    
    public override void OnEnable()
    {
@@ -30,6 +39,7 @@ public class Player : Character
 
       Controller     = GetComponent<CharacterController>();
       AnimController = GetComponent<Animator>();
+      NavObstacle    = GetComponent<NavMeshObstacle>();
       Renderers      = GetComponentsInChildren<Renderer>();
       
       LocomotionState = new PlayerLocomotionState(this);
@@ -39,6 +49,35 @@ public class Player : Character
 
       ActiveState      = LocomotionState;
       LastSafePosition = transform.position;
+   }
+
+   public override void OnUpdate(float DeltaTime)
+   {
+      base.OnUpdate(DeltaTime);
+      
+      //If we have an NPC following the player, calculate the hand holding IK Goals
+      if (Following == null)
+         return;
+
+      IKGoal                          = LeftSide ? AvatarIKGoal.LeftHand  : AvatarIKGoal.RightHand;
+      Following.FollowingState.IKGoal = LeftSide ? AvatarIKGoal.RightHand : AvatarIKGoal.LeftHand;
+      
+      Vector3 NPCPosition    = Following.transform.position;
+      Vector3 PlayerPosition = transform.position;
+      Vector3 Direction      = Vector3.Normalize(PlayerPosition - NPCPosition);
+      HandGoal               = NPCPosition + (Vector3.up * Following.HandHoldHeight) + (Direction * Vector3.Distance(NPCPosition, PlayerPosition) * 0.5f);
+   }
+
+   protected override void OnAnimatorIK(int LayerIDx)
+   {
+      base.OnAnimatorIK(LayerIDx);
+      
+      //If we have an NPC following the player, calculate the hand holding IK Goals
+      if (Following == null)
+         return;
+
+      AnimController.SetIKPositionWeight(IKGoal, 1f);
+      AnimController.SetIKPosition(IKGoal, HandGoal);
    }
 
    public override void OnDisable()

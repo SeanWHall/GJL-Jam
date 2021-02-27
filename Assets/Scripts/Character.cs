@@ -21,8 +21,8 @@ public class Character : BaseBehaviour
       }
    }
 
-   public override void OnUpdate(float DeltaTime) => _ActiveState?.OnUpdate();
-   private void OnAnimatorIK(int LayerIDx)        => _ActiveState?.OnAnimatorIK(LayerIDx);
+   public override void OnUpdate(float DeltaTime)    => _ActiveState?.OnUpdate();
+   protected virtual void OnAnimatorIK(int LayerIDx) => _ActiveState?.OnAnimatorIK(LayerIDx);
 }
 
 public class CharacterState

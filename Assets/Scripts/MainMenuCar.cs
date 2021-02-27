@@ -5,14 +5,14 @@ public class MainMenuCar : BaseBehaviour
     public Transform P1;
     public Transform P2;
 
-    public MeshRenderer[] BodyRenderers;
-    public Material[]     CarMats;
-    public float          Speed       = 20f;
-    public float          MaxIdleTime = 5;
-    public bool           StopMoving;
+    public MeshRenderer BodyRenderer;
+    public Material[]   CarMats;
+    public float        Speed       = 20f;
+    public float        MaxIdleTime = 5;
+    public bool         StopMoving;
     
     public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
-
+    
     private Vector3 P1_Pos;
     private Vector3 P2_Pos;
     
@@ -50,10 +50,10 @@ public class MainMenuCar : BaseBehaviour
         
         m_Alpha    = 0f;
         m_WaitTime = Random.Range(0f, MaxIdleTime);
-            
-        Material NewMat = CarMats[Random.Range(0, CarMats.Length)];
-        foreach (var Renderer in BodyRenderers)
-            Renderer.sharedMaterial = NewMat;
+
+        int Rand_IDx = Random.Range(0, CarMats.Length - 1);
+        if (Rand_IDx < CarMats.Length)
+            BodyRenderer.sharedMaterial = CarMats[Rand_IDx];
     }
 
     private void OnDrawGizmos()
