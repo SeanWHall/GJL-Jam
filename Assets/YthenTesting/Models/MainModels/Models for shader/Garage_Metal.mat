@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Garage_Metal
   m_Shader: {fileID: 4800000, guid: 5aeb1ecf06da3f44292b427ff0e74751, type: 3}
-  m_ShaderKeywords: _Gradient
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -100,7 +100,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Gradient: 1
+    - _Gradient: 0
     - _GradientX: 0.311
     - _Metallic: 0
     - _OcclusionStrength: 1
@@ -114,6 +114,7 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularRotation: 45
     - _SpecularSmoothness: 0.2
+    - _SpecularTilling: 20
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 1

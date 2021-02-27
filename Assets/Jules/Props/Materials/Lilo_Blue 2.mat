@@ -57,7 +57,7 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DirtStrength: 0.5
+    - _DirtStrength: 0.136
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
@@ -76,6 +76,7 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularRotation: 70
     - _SpecularSmoothness: 0.5
+    - _SpecularTilling: 20
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 1
