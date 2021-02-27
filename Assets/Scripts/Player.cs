@@ -7,6 +7,8 @@ using UnityEngine.Audio; // Tom
 
 public class Player : Character
 {
+   private List<IInteractable> _Interactables = new List<IInteractable>();
+   
    public static Player Instance { get; private set; }
    
    public float Speed          = 5f;
@@ -14,16 +16,17 @@ public class Player : Character
    public float JumpHeight     = 6;
    public float JumpCooldown   = 0.5f;
    public float MountDelay     = 1f;
-    public AudioClip JumpSound; // Tom
-    public AudioClip BoatEnter; // Tom
-    public AudioClip BoatExit; // Tom
-    public AudioSource PlayerAudioSource; // Tom
+   public AudioClip JumpSound; // Tom
+   public AudioClip BoatEnter; // Tom
+   public AudioClip BoatExit; // Tom
+   public AudioSource PlayerAudioSource; // Tom
 
    [NonSerialized] public Renderer[]          Renderers;
    [NonSerialized] public CharacterController Controller;
    [NonSerialized] public Animator            AnimController;
    [NonSerialized] public NavMeshObstacle     NavObstacle;
    [NonSerialized] public Vector3             LastSafePosition; //Respawn points
+   [NonSerialized] public bool                CanPlayerInteract;
    
    public PlayerLocomotionState  LocomotionState;
    public PlayerBoatState        BoatState;
@@ -55,12 +58,14 @@ public class Player : Character
       ActiveState      = LocomotionState;
       LastSafePosition = transform.position;
 
-        PlayerAudioSource = GetComponent<AudioSource>(); // Tom
+      PlayerAudioSource = GetComponent<AudioSource>(); // Tom
    }
 
    public override void OnUpdate(float DeltaTime)
    {
       base.OnUpdate(DeltaTime);
+
+      HandleInteraction();
       
       //If we have an NPC following the player, calculate the hand holding IK Goals
       if (Following == null)
@@ -75,6 +80,55 @@ public class Player : Character
       HandGoal               = NPCPosition + (Vector3.up * Following.HandHoldHeight) + (Direction * Vector3.Distance(NPCPosition, PlayerPosition) * 0.5f);
    }
 
+   public void HandleInteraction()
+   {
+      if (!CanPlayerInteract)
+      {
+         HUD.Instance.HideInteractionUI();
+         return;
+      }
+
+      int           Mask                = LayerMask.GetMask("Default"); //Check if there is anything on layer default, between the player and the interactable
+      Vector3       Player_Position     = transform.position;
+      IInteractable Closest_Interaction = null;
+      float         Closest_Dist        = float.PositiveInfinity;
+      // Currently can't interact with anything
+      int Interactables_Len = GetBehaviours(_Interactables);
+      for (int i = 0; i < Interactables_Len; i++)
+      {
+         IInteractable Interactable = _Interactables[i];
+         if(!Interactable.CanInteract(this))
+            continue; //make sure that the player can interact with this
+         
+         Vector3       Interaction_Position = Interactable.Position;
+         float         Interaction_Dist     = Vector3.Distance(Player_Position, Interaction_Position);
+         
+         if(Interaction_Dist > Interactable.InteractionDistance || Interaction_Dist > Closest_Dist)
+            continue; //Player is too far away from the interaction or there is another one closer
+
+         //Now check that the player is able to see the interaction
+         if (Physics.Linecast(Player_Position, Interaction_Position, out RaycastHit Hit, Mask, QueryTriggerInteraction.Ignore))
+            continue;
+
+         //Update the closest interactable with this one
+         Closest_Interaction = Interactable;
+         Closest_Dist        = Interaction_Dist;
+      }
+
+      if (Closest_Interaction == null)
+      {
+         //Nothing to interact with
+         HUD.Instance.HideInteractionUI();
+         return;
+      }
+      
+      //Show the interaction UI
+      HUD.Instance.ShowInteractionUI(Closest_Interaction);
+      
+      if(InputManager.Character_Interact.IsPressed)
+         Closest_Interaction.OnInteract(this);
+   }
+   
    protected override void OnAnimatorIK(int LayerIDx)
    {
       base.OnAnimatorIK(LayerIDx);
@@ -96,6 +150,7 @@ public class Player : Character
    public void Respawn()
    {
       HUD.Instance.FadeScreen(1.5f, 0.5f, OnFadeScreenEvent);
+      
       void OnFadeScreenEvent(HUD.eFadeScreenEvent Event)
       {
          if (Event != HUD.eFadeScreenEvent.Middle)
@@ -187,6 +242,12 @@ public class PlayerLocomotionState : PlayerState
 {
    public PlayerLocomotionState(Player Player) : base(Player) {}
 
+   public override void OnEnter()
+   {
+      base.OnEnter();
+      Player.CanPlayerInteract = true;
+   }
+
    public override void OnUpdate()
    {
       Vector3 Movement = OrientatedInput;
@@ -208,11 +269,14 @@ public class PlayerLocomotionState : PlayerState
       Controller.Move((Velocity + Physics.gravity) * Time.deltaTime);
 
       if (Boat.Instance.Dock != null)
-      {
-         Player.LastSafePosition = Boat.Instance.Dock.ExitPoint.position;
-         if (InputManager.Character_Mount.IsPressed && Player.MountState.AttemptMountChange(true))
-            AnimController.SetFloat("Speed", 0f);
-      }
+         Player.LastSafePosition = Boat.Instance.Dock.Player_ExitPoint.position;
+   }
+
+   public override void OnLeave()
+   {
+      base.OnLeave();
+      AnimController.SetFloat("Speed", 0f);
+      Player.CanPlayerInteract = false;
    }
 }
 
@@ -285,16 +349,25 @@ public class PlayerChangeMountState : PlayerState
       Boat.Instance.Rigid.angularVelocity = Vector3.zero;
       Boat.Instance.Rigid.isKinematic     = true;
 
+      if (Boat.Instance.Dock.Boat_DockPoint != null)
+      {
+         //Reset Boat to the docked point, we do this so the boat is rotated 180 degrees so they can get out later
+         Boat.Instance.transform.position = Boat.Instance.Dock.Boat_DockPoint.position;
+         Boat.Instance.transform.rotation = Boat.Instance.Dock.Boat_DockPoint.rotation;
+      }
+      
         Debug.Log("ExitBoat"); // Tom
 
 
-        CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
+      CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
 
       AnimController.SetBool("Sitting", false);
 
       Player.Controller.enabled = true;
       Player.transform.SetParent(null);
-      Player.transform.position = Boat.Instance.Dock.ExitPoint.position;
+      Player.transform.position = Boat.Instance.Dock.Player_ExitPoint.position;
+      Player.transform.rotation = Boat.Instance.Dock.Player_ExitPoint.rotation; //TODO: This is unsafe, could put the player at a bad rotation
+      //TODO: Zero off any Y rotation, so forward is a flat direction (X & Z)
    }
 }
 
@@ -304,7 +377,13 @@ public class PlayerBoatState : PlayerState
    public Boat  Boat => Boat.Instance;
 
    public PlayerBoatState(Player Player) : base(Player) { }
-   
+
+   public override void OnEnter()
+   {
+      base.OnEnter();
+      Player.CanPlayerInteract = true;
+   }
+
    public override void OnUpdate()
    {
       if (InputManager.Boat_Brake.IsPressed) Boat.Brake();
@@ -313,9 +392,6 @@ public class PlayerBoatState : PlayerState
          if (InputManager.Boat_LeftOar.IsPressed)  Boat.RotateOar(Boat.Left_Oar);
          if (InputManager.Boat_RightOar.IsPressed) Boat.RotateOar(Boat.Right_Oar);
       }
-
-      if (Boat.Dock != null && InputManager.Character_Mount.IsPressed)
-         Player.MountState.AttemptMountChange(false);
    }
 
    public override void OnAnimatorIK(int LayerIDx)
@@ -325,5 +401,11 @@ public class PlayerBoatState : PlayerState
       
       AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
       AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+   }
+
+   public override void OnLeave()
+   {
+      base.OnLeave();
+      Player.CanPlayerInteract = false;
    }
 }

@@ -14,13 +14,14 @@ public class BoatOar
    public Coroutine  Rotate_Routine;
 }
 
-public class Boat : BaseBehaviour
+public class Boat : BaseBehaviour, IInteractable
 {
    public static Boat Instance { get; private set; }
-   
-   public Rigidbody Rigid;
-   public Transform PlayerSeat;
-   public float     WaterOffset = 0f;
+
+   public MeshRenderer BoatRenderer;
+   public Rigidbody    Rigid;
+   public Transform    PlayerSeat;
+   public float        WaterOffset = 0f;
    
    public Vector3 P1;
    public Vector3 P2;
@@ -35,7 +36,12 @@ public class Boat : BaseBehaviour
    public float Move_Force      = 5f;
 
    public DockArea Dock;
-   
+
+   public float      InteractionDistance  => Dock != null ? Dock.DockSize : -1;
+   public string     InteractionText      => Player.Instance.ActiveState is PlayerLocomotionState ? "Climb In Boat" : "Climb Out Boat";
+   public Vector3    Position             => PlayerSeat.position;
+   public Material[] InteractionMaterials { get; private set; }
+
    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
    public override void OnEnable()
@@ -43,6 +49,7 @@ public class Boat : BaseBehaviour
       base.OnEnable();
       Instance = this;
 
+      InteractionMaterials     = BoatRenderer.materials;
       Left_Oar.Local_StartRot  = Left_Oar.MeshTarget.localRotation;
       Right_Oar.Local_StartRot = Right_Oar.MeshTarget.localRotation;
    }
@@ -128,4 +135,7 @@ public class Boat : BaseBehaviour
       Gizmos.DrawLine(Center, Center + (Vector3.Cross(P2 - P1, P3 - P1).normalized));
       Gizmos.DrawSphere(Center, 0.1f);
    }
+
+   public bool CanInteract(Player player) => Dock != null && player.ActiveState is PlayerLocomotionState || player.ActiveState is PlayerBoatState;
+   public void OnInteract(Player player) => player.MountState.AttemptMountChange(player.ActiveState is PlayerLocomotionState);
 }

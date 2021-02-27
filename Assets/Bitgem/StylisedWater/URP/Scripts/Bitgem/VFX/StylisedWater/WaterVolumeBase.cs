@@ -102,7 +102,7 @@ namespace Bitgem.VFX.StylisedWater
             var z = Mathf.FloorToInt((_position.z - transform.position.z + 0.5f) / TileSize);
 
             // check if out of bounds
-            if (x < 0 || x >= MAX_TILES_X || z < 0 || z >= MAX_TILES_Z)
+            if (x < 0 || x >= MAX_TILES_X || z < 0 || z >= MAX_TILES_Z || tiles == null)
             {
                 return null;
             }

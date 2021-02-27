@@ -90,7 +90,7 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Mount",
+                    "name": "Interact",
                     "type": "Button",
                     "id": "9834fa93-9273-4e14-b114-bd7182cfbbd5",
                     "expectedControlType": "Button",
@@ -180,7 +180,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
-                    "action": "Mount",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -191,7 +191,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Mount",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

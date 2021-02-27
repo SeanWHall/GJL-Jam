@@ -1,10 +1,24 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class DockArea : BaseBehaviour
 {
-   public Transform ExitPoint;
-   
+   [FormerlySerializedAs("ExitPoint")]
+   public Transform Player_ExitPoint;
+   public Transform NPC_ExitPoint;
+   public Transform Boat_DockPoint;
+
+   public float DockSize { get; private set; }
+
+   public override void OnEnable()
+   {
+      base.OnEnable();
+
+      Collider TriggerCol = GetComponent<Collider>();
+      DockSize = TriggerCol != null ?TriggerCol.bounds.size.magnitude : float.PositiveInfinity;
+   }
+
    public void OnTriggerEnter(Collider other)
    {
       if (!IsColliderPartOfBoat(other))

@@ -7,18 +7,105 @@ public class HUD : BaseBehaviour
 {
     public static HUD Instance { get; private set; }
     
-    public RawImage BlackScreen;
+    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
-    private Coroutine m_Fade_Routine;
+    public RectTransform RootRect;
+    public RawImage      BlackScreen;
+    public RectTransform InteractableRoot;
+    public Text          InteractableText;
+
+    private Camera        m_Camera; //TODO: Update this camera
+    private IInteractable m_Interactable;
+    private Coroutine     m_Fade_Routine;
+    private Shader        m_Toony_Shader;
+
+    private Camera Camera
+    {
+        get
+        {
+            if (m_Camera == null)
+                m_Camera = CameraController.Instance != null ? CameraController.Instance.Camera : Camera.main;
+            return m_Camera;
+        }
+    }
 
     public override void OnEnable()
     {
         base.OnEnable();
 
+        m_Toony_Shader = Shader.Find("Toony");
+        
+        RootRect = (RectTransform) transform;
         BlackScreen.gameObject.SetActive(false);
         Instance = this;
     }
 
+    public Vector2 WorldPointToCanvasPoint(Vector3 WorldPoint)
+    {
+        Vector2 CanvasSize = RootRect.sizeDelta;
+        Vector2 ViewPos    =Camera.WorldToViewportPoint(WorldPoint);
+        return new Vector2(ViewPos.x * CanvasSize.x - CanvasSize.x * 0.5f, ViewPos.y * CanvasSize.y - CanvasSize.y * 0.5f);
+    }
+
+    public override void OnUpdate(float DeltaTime)
+    {
+        base.OnUpdate(DeltaTime);
+
+        //Move Interactable UI, to follow the interaction transform
+        if (m_Interactable != null)
+        {
+            InteractableRoot.anchoredPosition = WorldPointToCanvasPoint(m_Interactable.Position);
+            InteractableText.text             = m_Interactable.InteractionText; //TODO: This creates a fair bit of GC, but its fine for this jam
+        }
+    }
+
+    public void HideInteractionUI()
+    {
+        if (m_Interactable == null)
+            return; //We should already be hidden, probably should assert this
+        
+        SetupInteractionMaterials(false);
+        
+        InteractableRoot.gameObject.SetActive(false);
+        m_Interactable = null;
+    }
+
+    public void ShowInteractionUI(IInteractable Target)
+    {
+        if (m_Interactable == Target || Target == null)
+            return; //Dont do anything if we are already showing this interaction
+        
+        if(m_Interactable != null)
+            SetupInteractionMaterials(false);
+        
+        m_Interactable        = Target;
+        InteractableText.text = Target.InteractionText;
+        InteractableRoot.gameObject.SetActive(true);
+
+        SetupInteractionMaterials(true);
+    }
+
+    private void SetupInteractionMaterials(bool ShowRim)
+    {
+        if (m_Interactable == null)
+            return;
+        
+        Material[] Interaction_Materials = m_Interactable.InteractionMaterials;
+        if (Interaction_Materials == null)
+            return;
+
+        int Materials_Len = Interaction_Materials.Length;
+        for (int i = 0; i < Materials_Len; i++)
+        {
+            Material Mat = Interaction_Materials[i];
+            if(Mat.shader != m_Toony_Shader)
+                continue; //Skip non toony Shaders
+            
+            if(ShowRim) Mat.EnableKeyword("_RIM_HIGHLIGHT");
+            else        Mat.DisableKeyword("_RIM_HIGHLIGHT");
+        }
+    }
+    
     public enum eFadeScreenEvent { Middle, End }
 
     public delegate void FadeScreenDel(eFadeScreenEvent Events);

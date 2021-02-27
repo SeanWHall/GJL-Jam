@@ -34,7 +34,7 @@ public class BaseBehaviour : MonoBehaviour
    public void Warn(string Message)  => Debug.LogWarning($"[{ID}] {Message}", this);
    public void Error(string Message) => Debug.LogError($"[{ID}] {Message}", this);
 
-   public static int GetBehaviours<T>(IList<T> Behaviours) where T : BaseBehaviour
+   public static int GetBehaviours<T>(IList<T> Behaviours)
    {
       Behaviours.Clear();
       int Behaviours_Len = AllBehaviours.Count;

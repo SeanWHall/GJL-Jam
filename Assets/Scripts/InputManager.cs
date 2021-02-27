@@ -15,7 +15,7 @@ public class InputManager : BaseBehaviour
     public InputButton UI_Pause;
     
     public InputVector2 Character_Movement;
-    public InputButton  Character_Mount;
+    public InputButton  Character_Interact;
     public InputButton  Character_Jump;
     
     public InputButton  Boat_LeftOar;
@@ -43,7 +43,7 @@ public class InputManager : BaseBehaviour
         
         InputActionMap Player_Map = InputAsset.FindActionMap("Player");
         Character_Movement = AddInput(new InputVector2(Player_Map.FindAction("Movement")));
-        Character_Mount    = AddInput(new InputButton(Player_Map.FindAction("Mount")));
+        Character_Interact = AddInput(new InputButton(Player_Map.FindAction("Interact")));
         Character_Jump     = AddInput(new InputButton(Player_Map.FindAction("Jump")));
         
         Instance = this;

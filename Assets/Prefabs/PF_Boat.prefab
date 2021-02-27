@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1117742987763510547}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: IK
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39,7 +39,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1801912047160362445}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2485999494996797945}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: IK
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8695830144919043383}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +131,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3472742082824300490}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Player Seat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +161,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9222769483119401932}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -191,7 +191,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 700617900971520621}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Left_Oar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -223,7 +223,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8180762089486481729}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -257,7 +257,7 @@ GameObject:
   - component: {fileID: 6864592620036359373}
   - component: {fileID: 6864592620036359372}
   - component: {fileID: 6864592620036359370}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PF_Boat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -294,9 +294,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2007885947d64db4e82b82b302cf808a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BoatRenderer: {fileID: 8641697109118877031}
   Rigid: {fileID: 6864592620036359370}
   PlayerSeat: {fileID: 3472742082824300490}
-  WaterOffset: 0
+  WaterOffset: 0.5
   P1: {x: 1, y: 0, z: -2.5}
   P2: {x: -1, y: 0, z: -2.5}
   P3: {x: 0, y: 0, z: 1.3}
@@ -342,7 +343,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1275884306775199414}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Right_Oar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -391,12 +392,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Dingy
       objectReference: {fileID: 0}
+    - target: {fileID: 598882912349868106, guid: 44f6b108fe84b2e469bbe97cd6cc7ac3,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 1669126731050779193, guid: 44f6b108fe84b2e469bbe97cd6cc7ac3,
         type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: -843933884928597589, guid: ca6f44587cca60745ad0b07879d6c44e,
         type: 3}
+    - target: {fileID: 3156432707733116710, guid: 44f6b108fe84b2e469bbe97cd6cc7ac3,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 3516496170546689779, guid: 44f6b108fe84b2e469bbe97cd6cc7ac3,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -486,6 +497,12 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 5125205360322808724}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &8641697109118877031 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3516496170546689779, guid: 44f6b108fe84b2e469bbe97cd6cc7ac3,
+    type: 3}
+  m_PrefabInstance: {fileID: 5125205360322808724}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5948354816860211244
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -567,6 +584,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Oar
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b67f3f526dae7044088b0fe5a6e4c7c6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b67f3f526dae7044088b0fe5a6e4c7c6, type: 3}
@@ -657,6 +679,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Oar
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b67f3f526dae7044088b0fe5a6e4c7c6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b67f3f526dae7044088b0fe5a6e4c7c6, type: 3}
