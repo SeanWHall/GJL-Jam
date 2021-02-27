@@ -5,7 +5,11 @@ public class CameraController : BaseBehaviour
    public static CameraController Instance         { get; private set; }
    public static float            WorldOrientation => Instance != null ? Instance.m_WorldOrientation : 0;
    
-   public Camera Camera;
+   public Camera  Camera;
+   public float   CameaLength     = 5f;
+   public float   LookSensitivity = 0.5f;
+   public Vector2 lookXLimit      = new Vector2(-180, 180f);
+   public Vector2 lookYLimit      = new Vector2(30.0f, 90f);
    
    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
@@ -89,7 +93,8 @@ public class CameraState
 {
    public CameraController Controller;
 
-   public Camera Camera => Controller.Camera;
+   public Camera       Camera       => Controller.Camera;
+   public InputManager InputManager => InputManager.Instance;
    
    public CameraState(CameraController Controller) => this.Controller = Controller;
    
@@ -145,10 +150,30 @@ public class PlayerCameraState : CameraState
 
 public class BoatCameraState : CameraState
 {
+   private Vector2 m_CameraRot;
+
    public BoatCameraState(CameraController Controller) : base(Controller) {}
-   
+
+   public override void OnEnter() => m_CameraRot = Vector2.zero;
+
    public override void OnUpdate()
    {
-      
+      Vector2 CameraInput = InputManager.Boat_Camera.Value;
+      m_CameraRot.x += CameraInput.x * Controller.LookSensitivity * Time.deltaTime;
+      m_CameraRot.y += CameraInput.y * Controller.LookSensitivity * Time.deltaTime;
+
+      m_CameraRot.x = Mathf.Clamp(m_CameraRot.x, Controller.lookXLimit.x, Controller.lookXLimit.y);
+      m_CameraRot.y = Mathf.Clamp(m_CameraRot.y, Controller.lookYLimit.x, Controller.lookYLimit.y);
+
+      //Flip the rotations if at limits
+      if (m_CameraRot.x > 179.9f) m_CameraRot.x       = -180;
+      else if (m_CameraRot.x < -179.9f) m_CameraRot.x = 180;
+
+      Quaternion Camera_Rot     = Quaternion.Euler(m_CameraRot.y, m_CameraRot.x, 0);
+      Vector3    Camera_Forward = Camera_Rot * Vector3.forward;
+      Vector3    Boat_Pos       = Boat.Instance.transform.position;
+
+      Controller.transform.position = Boat_Pos + (-Camera_Forward * Controller.CameaLength);
+      Controller.transform.rotation = Camera_Rot;
    }
 }

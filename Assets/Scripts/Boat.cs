@@ -1,4 +1,5 @@
-﻿using Bitgem.VFX.StylisedWater;
+﻿using System.Collections;
+using Bitgem.VFX.StylisedWater;
 using UnityEngine;
 
 [System.Serializable]
@@ -6,7 +7,11 @@ public class BoatOar
 {
    public Transform ForceOffset;
    public Transform IKPoint;
-   public Animation Anim;
+   public Transform MeshTarget;
+   public Vector3   Rotation;
+
+   public Quaternion Local_StartRot;
+   public Coroutine  Rotate_Routine;
 }
 
 public class Boat : BaseBehaviour
@@ -15,6 +20,7 @@ public class Boat : BaseBehaviour
    
    public Rigidbody Rigid;
    public Transform PlayerSeat;
+   public float     WaterOffset = 0f;
    
    public Vector3 P1;
    public Vector3 P2;
@@ -23,9 +29,10 @@ public class Boat : BaseBehaviour
    public BoatOar Left_Oar;
    public BoatOar Right_Oar;
 
-   public float Max_Speed   = 5f;
-   public float Brake_Force = 5f;
-   public float Move_Force  = 5f;
+   public float Oar_RotateSpeed = 2f;
+   public float Max_Speed       = 5f;
+   public float Brake_Force     = 5f;
+   public float Move_Force      = 5f;
 
    public DockArea Dock;
    
@@ -35,15 +42,18 @@ public class Boat : BaseBehaviour
    {
       base.OnEnable();
       Instance = this;
+
+      Left_Oar.Local_StartRot  = Left_Oar.MeshTarget.localRotation;
+      Right_Oar.Local_StartRot = Right_Oar.MeshTarget.localRotation;
    }
 
    public bool RotateOar(BoatOar Oar)
    {
-      if (Oar.Anim.isPlaying)
+      if (Oar.Rotate_Routine != null)
          return false;
       
       Rigid.AddForceAtPosition(transform.forward * Move_Force, Oar.ForceOffset.position, ForceMode.Force);
-      Oar.Anim.Play();
+      Oar.Rotate_Routine = StartCoroutine(RoateOarAsync(Oar));
       return true;
    }
 
@@ -51,6 +61,20 @@ public class Boat : BaseBehaviour
    {
       Rigid.velocity        -= Rigid.velocity * (Brake_Force * Time.deltaTime);
       Rigid.angularVelocity -= Rigid.angularVelocity * (Brake_Force * Time.deltaTime);
+   }
+
+   //This is not good practice, AKA STAY AWAY FROM COROUTINES. But should be fine for this jam
+   private IEnumerator RoateOarAsync(BoatOar TargetOar)
+   {
+      float Alpha = 0f;
+      while (Alpha < 1f)
+      {
+         TargetOar.MeshTarget.localRotation = TargetOar.Local_StartRot * Quaternion.Euler(TargetOar.Rotation * (360 * Alpha));
+         yield return new WaitForEndOfFrame();
+         Alpha += Oar_RotateSpeed * Time.deltaTime;
+      }
+
+      TargetOar.Rotate_Routine = null;
    }
    
    public override void OnUpdate(float DeltaTime)
@@ -72,7 +96,11 @@ public class Boat : BaseBehaviour
       P1_W.y     = WaterInstance.GetHeight(P1_W).GetValueOrDefault(P1_W.y);
       P2_W.y     = WaterInstance.GetHeight(P2_W).GetValueOrDefault(P2_W.y);
       P3_W.y     = WaterInstance.GetHeight(P3_W).GetValueOrDefault(P3_W.y);
-      Position.y = (P1_W.y + P2_W.y + P3_W.y) / 3f;
+      Position.y = ((P1_W.y + P2_W.y + P3_W.y) / 3f) + WaterOffset;
+      
+      Debug.DrawLine(LTW.MultiplyPoint3x4(P1), P1_W, Color.magenta);
+      Debug.DrawLine(LTW.MultiplyPoint3x4(P2), P2_W, Color.magenta);
+      Debug.DrawLine(LTW.MultiplyPoint3x4(P3), P3_W, Color.magenta);
       
       transform.rotation = Quaternion.LookRotation(Forward, Vector3.Cross(P2_W - P1_W, P3_W - P1_W).normalized);
       transform.position = Position;

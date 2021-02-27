@@ -219,6 +219,8 @@ public class PlayerChangeMountState : PlayerState
       AnimController.SetBool("Sitting", true);
       AnimController.SetFloat("Speed", 0f);
 
+      CameraController.Instance.ActiveState = CameraController.Instance.BoatState;
+
       //Enable the Boat Physics
       Boat.Instance.Rigid.isKinematic = false;
    }
@@ -233,6 +235,7 @@ public class PlayerChangeMountState : PlayerState
       Boat.Instance.Rigid.angularVelocity = Vector3.zero;
       Boat.Instance.Rigid.isKinematic     = true;
 
+      CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
 
       AnimController.SetBool("Sitting", false);
 

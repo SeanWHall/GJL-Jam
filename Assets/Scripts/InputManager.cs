@@ -18,9 +18,10 @@ public class InputManager : BaseBehaviour
     public InputButton  Character_Mount;
     public InputButton  Character_Jump;
     
-    public InputButton Boat_LeftOar;
-    public InputButton Boat_RightOar;
-    public InputButton Boat_Brake;
+    public InputButton  Boat_LeftOar;
+    public InputButton  Boat_RightOar;
+    public InputButton  Boat_Brake;
+    public InputVector2 Boat_Camera;
 
     private List<InputWrapper> _Buttons = new List<InputWrapper>();
     
@@ -31,18 +32,19 @@ public class InputManager : BaseBehaviour
         InputAsset.Enable();
 
         InputActionMap UI_Map = InputAsset.FindActionMap("UI");
-        UI_Pause = AddButton(new InputButton(UI_Map.FindAction("Pause")));
+        UI_Pause = AddInput(new InputButton(UI_Map.FindAction("Pause")));
         
         InputActionMap Boat_Map = InputAsset.FindActionMap("Boat");
-        Boat_Brake    = AddButton(new InputButton(Boat_Map.FindAction("Brake")));
-        Boat_LeftOar  = AddButton(new InputButton(Boat_Map.FindAction("Left Oar")));
-        Boat_RightOar = AddButton(new InputButton(Boat_Map.FindAction("Right Oar")));
+        Boat_Brake    = AddInput(new InputButton(Boat_Map.FindAction("Brake")));
+        Boat_LeftOar  = AddInput(new InputButton(Boat_Map.FindAction("Left Oar")));
+        Boat_RightOar = AddInput(new InputButton(Boat_Map.FindAction("Right Oar")));
+        Boat_Camera   = AddInput(new InputVector2(Boat_Map.FindAction("Camera")));
         
         
         InputActionMap Player_Map = InputAsset.FindActionMap("Player");
-        Character_Movement = AddButton(new InputVector2(Player_Map.FindAction("Movement")));
-        Character_Mount    = AddButton(new InputButton(Player_Map.FindAction("Mount")));
-        Character_Jump     = AddButton(new InputButton(Player_Map.FindAction("Jump")));
+        Character_Movement = AddInput(new InputVector2(Player_Map.FindAction("Movement")));
+        Character_Mount    = AddInput(new InputButton(Player_Map.FindAction("Mount")));
+        Character_Jump     = AddInput(new InputButton(Player_Map.FindAction("Jump")));
         
         Instance = this;
     }
@@ -53,7 +55,7 @@ public class InputManager : BaseBehaviour
             Button.Poll();
     }
 
-    private T AddButton<T>(T Button) where T : InputWrapper
+    private T AddInput<T>(T Button) where T : InputWrapper
     {
         if (Button != null)
             _Buttons.Add(Button);
