@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public class AudioMixerTransition : MonoBehaviour
+public class AudioMixerStartingSnapshot : MonoBehaviour
 {
-    public AudioMixerSnapshot nextSnapshot;
-    public float transitionTime;
+    public AudioMixerSnapshot startingSnapshot;
+    public float TransitionTime;
 
     // Start is called before the first frame update
     void Start()
     {
-        nextSnapshot.TransitionTo(transitionTime);
+        startingSnapshot.TransitionTo(TransitionTime);
     }
 }
