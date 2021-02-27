@@ -182,6 +182,10 @@ MonoBehaviour:
   JumpHeight: 4
   JumpCooldown: 0.5
   MountDelay: 1
+  JumpSound: {fileID: 8300000, guid: 4d99d46b397cfee4c8cf8360ee2e39bb, type: 3}
+  BoatEnter: {fileID: 8300000, guid: fd8bf0b9d2a08d7478ec948975710c01, type: 3}
+  BoatExit: {fileID: 8300000, guid: 6938a45b94ba3d741b5c429637e806e0, type: 3}
+  PlayerAudioSource: {fileID: 2013845741756224546}
 --- !u!143 &4494543130054432525
 CharacterController:
   m_ObjectHideFlags: 0

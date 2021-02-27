@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Audio; // Tom
 
 public class Player : Character
 {
@@ -13,6 +14,10 @@ public class Player : Character
    public float JumpHeight     = 6;
    public float JumpCooldown   = 0.5f;
    public float MountDelay     = 1f;
+    public AudioClip JumpSound; // Tom
+    public AudioClip BoatEnter; // Tom
+    public AudioClip BoatExit; // Tom
+    public AudioSource PlayerAudioSource; // Tom
 
    [NonSerialized] public Renderer[]          Renderers;
    [NonSerialized] public CharacterController Controller;
@@ -49,6 +54,8 @@ public class Player : Character
 
       ActiveState      = LocomotionState;
       LastSafePosition = transform.position;
+
+        PlayerAudioSource = GetComponent<AudioSource>(); // Tom
    }
 
    public override void OnUpdate(float DeltaTime)
@@ -145,7 +152,9 @@ public class PlayerJumpState : PlayerState
       base.OnEnter();
       JumpVelocity = Player.JumpHeight * OrientatedInput.normalized.magnitude; //Shorten Jump Height if not moving
       AnimController.SetBool("IsJumping", true);
-   }
+        Debug.Log("Play Jump Sound"); // Tom
+        //PlayerAudioSource.clip = JumpSound; // Tom
+    }
 
    public override void OnUpdate()
    {
@@ -169,6 +178,7 @@ public class PlayerJumpState : PlayerState
    {
       AnimController.SetBool("IsJumping", false);
       NextJump = Time.time + Player.JumpCooldown;
+        Debug.Log("Landing Sound");
    }
 }
 
@@ -237,7 +247,6 @@ public class PlayerChangeMountState : PlayerState
          //Do The Mounting Change logic
          if (Mounting) MountBoat();
          else          UnMountBoat();
-         
          return;
       }
          
@@ -258,6 +267,8 @@ public class PlayerChangeMountState : PlayerState
       AnimController.SetBool("Sitting", true);
       AnimController.SetFloat("Speed", 0f);
 
+        Debug.Log("EnterBoat"); // Tom
+
       CameraController.Instance.ActiveState = CameraController.Instance.BoatState;
 
       //Enable the Boat Physics
@@ -274,7 +285,10 @@ public class PlayerChangeMountState : PlayerState
       Boat.Instance.Rigid.angularVelocity = Vector3.zero;
       Boat.Instance.Rigid.isKinematic     = true;
 
-      CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
+        Debug.Log("ExitBoat"); // Tom
+
+
+        CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
 
       AnimController.SetBool("Sitting", false);
 
