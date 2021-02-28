@@ -221,9 +221,9 @@ MonoBehaviour:
   - Key: MainMenu
     Scenes:
     - Assets/Scenes/MainMenu.unity
-  - Key: Sample
+  - Key: BlockOut
     Scenes:
-    - Assets/Scenes/SampleScene.unity
+    - Assets/Scenes/Blockout/BlockoutLevel.unity
 --- !u!114 &193898999246741100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,10 +267,10 @@ MonoBehaviour:
   DialogueAsset: {fileID: 0}
   CurrentNode:
     Name: 
-    Speaker: 
     Dialogue: 
     AllowLeave: 1
     Options: []
+    Actions: []
 --- !u!1 &1330171953342147785
 GameObject:
   m_ObjectHideFlags: 0
