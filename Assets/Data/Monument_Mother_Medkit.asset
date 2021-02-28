@@ -17,7 +17,8 @@ MonoBehaviour:
   - Player
   Nodes:
   - Name: Intro
-    Dialogue: The Player approaches the mother
+    Dialogue: 'After a long climb you approach the survivor. They''re wailing in
+      pain. You ask them what''s wrong. '
     AllowLeave: 1
     Options:
     - Text: Hello?
@@ -25,7 +26,10 @@ MonoBehaviour:
       Bools: []
     Actions: []
   - Name: After Intro
-    Dialogue: Mother Gurgles Like she is injured
+    Dialogue: 'They point to a wound on their leg. You gesture wrapping a bandage
+      around your arm and they nod.
+
+'
     AllowLeave: 1
     Options:
     - Text: Give Medkit
@@ -36,7 +40,8 @@ MonoBehaviour:
         State: 1
     Actions: []
   - Name: Give Medkit
-    Dialogue: Mother Gurgles Happily
+    Dialogue: The survivor thanks you with a gift. A pair of fence cutters. These
+      should come in handy.
     AllowLeave: 1
     Options: []
     Actions:
