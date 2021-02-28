@@ -59,7 +59,8 @@ MonoBehaviour:
         PublicKeyToken=null
       JSon: '{"Participant":"Hotel Lost Child","Key":"Carry","Value":true}'
   - Name: Stay
-    Dialogue: You hold out your hand, in an attempt to make the child stay
+    Dialogue: You hold out your hand, in an attempt to make the child stay where
+      they are
     AllowLeave: 1
     Options: []
     Actions:

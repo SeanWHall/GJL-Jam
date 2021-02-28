@@ -25,10 +25,8 @@ MonoBehaviour:
       Bools: []
     Actions: []
   - Name: After Intro
-    Dialogue: 'She does not understand what you are saying.
-
-      She mimics clicking
-      on and off a flashlight. '
+    Dialogue: "She does not understand what you are saying. However \nshe is stuck
+      in the dark and mimics the clicking on and off\nof a flashlight with her hands. "
     AllowLeave: 1
     Options:
     - Text: Give Flashlight

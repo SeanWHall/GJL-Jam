@@ -25,7 +25,8 @@ MonoBehaviour:
       Bools: []
     Actions: []
   - Name: After Intro
-    Dialogue: 'The child doesn''t speak to you. He looks lost. '
+    Dialogue: 'The child looks at you frightened and refuses to speak to you. He
+      looks lost. '
     AllowLeave: 1
     Options:
     - Text: Offer Picture
