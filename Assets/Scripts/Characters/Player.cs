@@ -138,7 +138,7 @@ public class Player : Character
             continue; //Player is too far away from the interaction or there is another one closer
 
          //Now check that the player is able to see the interaction
-         if (Physics.Linecast(Player_Position, Interaction_Position, Mask, QueryTriggerInteraction.Ignore))
+         if (Physics.Linecast(Player_Position + new Vector3(0, 0.5f), Interaction_Position, Mask, QueryTriggerInteraction.Ignore))
             continue;
 
          //Update the closest interactable with this one

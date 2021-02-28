@@ -24,7 +24,7 @@ public class NPC : Character, IInteractable
     public int        InteractionPriority  => CommunicationPriority; // NPC Talking isn't quite that important
     public float      InteractionDistance  => CommunicationDistance;
     public string     InteractionText      => $"Communicate With {Name}";
-    public Vector3    Position             => transform.position;
+    public Vector3    Position             => transform.position + new Vector3(0, 0.5f);
     public Material[] InteractionMaterials { get; private set; }
     
     public override void OnEnable()
