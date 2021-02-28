@@ -11,34 +11,32 @@ public class Player : Character
    
    public static Player Instance { get; private set; }
    
-   public float Speed          = 5f;
-   public float AirbourneSpeed = 3f;
-   public float JumpHeight     = 6;
-   public float JumpCooldown   = 0.5f;
-   public float MountDelay     = 1f;
-   public AudioClip JumpSound; // Tom
-   public AudioClip BoatEnter; // Tom
-   public AudioClip BoatExit; // Tom
+   public float       Speed            = 5f;
+   public float       CarryingSpeedMod = 0.75f;
+   public float       InteractionDelay = 1f;
+   public float       AirbourneSpeed   = 3f;
+   public float       JumpHeight       = 6;
+   public float       JumpCooldown     = 0.5f;
+   public float       MountDelay       = 1f;
+   public Transform   PickupMountPoint;
+   public AudioClip   JumpSound; // Tom
+   public AudioClip   BoatEnter; // Tom
+   public AudioClip   BoatExit; // Tom
    public AudioSource PlayerAudioSource; // Tom
 
    [NonSerialized] public Renderer[]          Renderers;
    [NonSerialized] public CharacterController Controller;
    [NonSerialized] public NavMeshObstacle     NavObstacle;
    [NonSerialized] public Vector3             LastSafePosition; //Respawn points
-   [NonSerialized] public bool                CanPlayerInteract;
+   [NonSerialized] public float               NextInteractionTime;
    
-   public PlayerLocomotionState  LocomotionState;
-   public PlayerBoatState        BoatState;
-   public PlayerJumpState        JumpState;
-   public PlayerChangeMountState MountState;
-   public PlayerDialogueState    DialogueState;
-
-   //Just going to hard code it, normally I'd write an interaction system
-   //But it aint worth it for one interaction
-   [NonSerialized] public NPC          Following;
-   [NonSerialized] public bool         LeftSide = false;
-   [NonSerialized] public Vector3      HandGoal;
-   [NonSerialized] public AvatarIKGoal IKGoal;
+   public PlayerLocomotionState    LocomotionState;
+   public PlayerBoatState          BoatState;
+   public PlayerJumpState          JumpState;
+   public PlayerChangeMountState   MountState;
+   public PlayerDialogueState      DialogueState;
+   public PlayerLeadingNPCState    LeadingNPCState;
+   public PlayerHoldingObjectState HoldingObjectState;
    
    public override void OnEnable()
    {
@@ -50,11 +48,13 @@ public class Player : Character
       NavObstacle    = GetComponent<NavMeshObstacle>();
       Renderers      = GetComponentsInChildren<Renderer>();
       
-      LocomotionState = new PlayerLocomotionState(this);
-      BoatState       = new PlayerBoatState(this);
-      JumpState       = new PlayerJumpState(this);
-      MountState      = new PlayerChangeMountState(this);
-      DialogueState   = new PlayerDialogueState(this);
+      LocomotionState    = new PlayerLocomotionState(this);
+      BoatState          = new PlayerBoatState(this);
+      JumpState          = new PlayerJumpState(this);
+      MountState         = new PlayerChangeMountState(this);
+      DialogueState      = new PlayerDialogueState(this);
+      LeadingNPCState    = new PlayerLeadingNPCState(this);
+      HoldingObjectState = new PlayerHoldingObjectState(this);
 
       ActiveState      = LocomotionState;
       LastSafePosition = transform.position;
@@ -73,23 +73,11 @@ public class Player : Character
       base.OnUpdate(DeltaTime);
 
       HandleInteraction();
-      
-      //If we have an NPC following the player, calculate the hand holding IK Goals
-      if (Following == null)
-         return;
-
-      IKGoal                          = LeftSide ? AvatarIKGoal.LeftHand  : AvatarIKGoal.RightHand;
-      Following.FollowingState.IKGoal = LeftSide ? AvatarIKGoal.RightHand : AvatarIKGoal.LeftHand;
-      
-      Vector3 NPCPosition    = Following.transform.position;
-      Vector3 PlayerPosition = transform.position;
-      Vector3 Direction      = Vector3.Normalize(PlayerPosition - NPCPosition);
-      HandGoal               = NPCPosition + (Vector3.up * Following.HandHoldHeight) + (Direction * Vector3.Distance(NPCPosition, PlayerPosition) * 0.5f);
    }
 
    public void HandleInteraction()
    {
-      if (!CanPlayerInteract)
+      if (!((PlayerState)ActiveState).CanInteract || Time.time < NextInteractionTime)
       {
          HUD.Instance.HideInteractionUI();
          return;
@@ -131,23 +119,14 @@ public class Player : Character
       
       //Show the interaction UI
       HUD.Instance.ShowInteractionUI(Closest_Interaction);
-      
-      if(InputManager.Character_Interact.IsPressed)
+
+      if (InputManager.Character_Interact.IsPressed)
+      {
          Closest_Interaction.OnInteract(this);
+         NextInteractionTime = Time.time + InteractionDelay;
+      }
    }
    
-   protected override void OnAnimatorIK(int LayerIDx)
-   {
-      base.OnAnimatorIK(LayerIDx);
-      
-      //If we have an NPC following the player, calculate the hand holding IK Goals
-      if (Following == null)
-         return;
-
-      AnimController.SetIKPositionWeight(IKGoal, 1f);
-      AnimController.SetIKPosition(IKGoal, HandGoal);
-   }
-
    public override void OnDisable()
    {
       base.OnDisable();
@@ -186,6 +165,8 @@ public class PlayerState : CharacterState
    public Player              Player     => (Player) Character;
    public CharacterController Controller => Player.Controller;
 
+   public virtual bool CanInteract => false;
+   
    public Vector3 OrientatedInput
    {
       get
@@ -246,13 +227,10 @@ public class PlayerJumpState : PlayerState
 //Player is walking around
 public class PlayerLocomotionState : PlayerState
 {
-   public PlayerLocomotionState(Player Player) : base(Player) {}
+   public virtual  float Speed       => Player.Speed;
+   public override bool  CanInteract => true;
 
-   public override void OnEnter()
-   {
-      base.OnEnter();
-      Player.CanPlayerInteract = true;
-   }
+   public PlayerLocomotionState(Player Player) : base(Player) {}
 
    public override void OnUpdate()
    {
@@ -267,7 +245,7 @@ public class PlayerLocomotionState : PlayerState
             return;
          }
          
-         Velocity = Movement * Player.Speed;
+         Velocity = Movement * Speed;
          Player.transform.forward = Movement;
       }
       
@@ -282,7 +260,6 @@ public class PlayerLocomotionState : PlayerState
    {
       base.OnLeave();
       AnimController.SetFloat("Speed", 0f);
-      Player.CanPlayerInteract = false;
    }
 }
 
@@ -380,16 +357,11 @@ public class PlayerChangeMountState : PlayerState
 //Player Driving Boat
 public class PlayerBoatState : PlayerState
 {
-   public Boat  Boat => Boat.Instance;
+   public override bool CanInteract => true;
+   public          Boat Boat        => Boat.Instance;
 
    public PlayerBoatState(Player Player) : base(Player) { }
-
-   public override void OnEnter()
-   {
-      base.OnEnter();
-      Player.CanPlayerInteract = true;
-   }
-
+   
    public override void OnUpdate()
    {
       if (InputManager.Boat_Brake.IsPressed) Boat.Brake();
@@ -408,15 +380,70 @@ public class PlayerBoatState : PlayerState
       AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
       AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
    }
-
-   public override void OnLeave()
-   {
-      base.OnLeave();
-      Player.CanPlayerInteract = false;
-   }
 }
 
 public class PlayerDialogueState : PlayerState
 {
    public PlayerDialogueState(Player Player) : base(Player) { }
+}
+
+public class PlayerLeadingNPCState : PlayerLocomotionState
+{
+   public NPC          Following;
+   public bool         LeftSide = false;
+   public Vector3      HandGoal;
+   public AvatarIKGoal IKGoal;
+   
+   public PlayerLeadingNPCState(Player Character) : base(Character) {}
+
+   public override void OnUpdate()
+   {
+      base.OnUpdate();
+      
+      IKGoal                          = LeftSide ? AvatarIKGoal.LeftHand  : AvatarIKGoal.RightHand;
+      Following.FollowingState.IKGoal = LeftSide ? AvatarIKGoal.RightHand : AvatarIKGoal.LeftHand;
+      
+      Vector3 NPCPosition    = Following.transform.position;
+      Vector3 PlayerPosition = Player.transform.position;
+      Vector3 Direction      = Vector3.Normalize(PlayerPosition - NPCPosition);
+      HandGoal = NPCPosition + (Vector3.up * Following.HandHoldHeight) + (Direction * Vector3.Distance(NPCPosition, PlayerPosition) * 0.5f);
+   }
+
+   public override void OnAnimatorIK(int LayerIDx)
+   {
+      base.OnAnimatorIK(LayerIDx);
+      
+      AnimController.SetIKPositionWeight(IKGoal, 1f);
+      AnimController.SetIKPosition(IKGoal, HandGoal);
+   }
+}
+
+public class PlayerHoldingObjectState : PlayerLocomotionState
+{
+   public override float Speed => base.Speed * Player.CarryingSpeedMod;
+
+   public HoldableObject HoldableObject;
+   
+   public PlayerHoldingObjectState(Player Character) : base(Character) {}
+   
+   public override void OnUpdate()
+   {
+      base.OnUpdate();
+
+      if (InputManager.Character_Interact.IsPressed)
+      {
+         //Try to place Object down
+      }
+   }
+
+   public override void OnAnimatorIK(int LayerIDx)
+   {
+      base.OnAnimatorIK(LayerIDx);
+      
+      AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
+      AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+      
+      AnimController.SetIKPosition(AvatarIKGoal.LeftHand, HoldableObject.LeftHand.position);
+      AnimController.SetIKPosition(AvatarIKGoal.RightHand, HoldableObject.RightHand.position);
+   }
 }

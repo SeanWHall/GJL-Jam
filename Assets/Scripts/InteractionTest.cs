@@ -14,7 +14,7 @@ public class InteractionTest : BaseBehaviour, IInteractable
 
     public void Awake() => InteractionMaterials = GetComponent<MeshRenderer>().materials;
 
-    public bool CanInteract(Player player) => true; //TEst
+    public bool CanInteract(Player player) => player.ActiveState == player.LocomotionState;
 
     public void OnInteract(Player player)
     {

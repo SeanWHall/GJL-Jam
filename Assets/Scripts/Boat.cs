@@ -136,6 +136,6 @@ public class Boat : BaseBehaviour, IInteractable
       Gizmos.DrawSphere(Center, 0.1f);
    }
 
-   public bool CanInteract(Player player) => Dock != null && player.ActiveState is PlayerLocomotionState || player.ActiveState is PlayerBoatState;
+   public bool CanInteract(Player player) => Dock != null && player.ActiveState == player.LocomotionState || player.ActiveState == player.BoatState;
    public void OnInteract(Player player) => player.MountState.AttemptMountChange(player.ActiveState is PlayerLocomotionState);
 }

@@ -64,11 +64,12 @@ public class NPCIdleState : NPCState
     {
         base.OnUpdate();
 
-        if (Keyboard.current.jKey.isPressed && Player.Following == null)
-        {
-            //Only Switch to the following state, if no other NPC is currently following the player
-            NPC.ActiveState = NPC.FollowingState;
-        }
+        //TODO: Finish AI Logic
+        //if (Keyboard.current.jKey.isPressed && Player.Following == null)
+        //{
+        //    //Only Switch to the following state, if no other NPC is currently following the player
+        //    NPC.ActiveState = NPC.FollowingState;
+        //}
     }
 }
 
@@ -79,13 +80,16 @@ public class NPCBoatState : NPCState
 
 public class NPCFollowingState : NPCState
 {
+    public PlayerLeadingNPCState PlayerState => Player.Instance.LeadingNPCState;
+    
     public NPCFollowingState(NPC NPC) : base(NPC) {}
 
     public AvatarIKGoal IKGoal;
     
     public override void OnEnter()
     {
-        Player.Following = NPC;
+        //TODO: Finish Ai Logic, Player needs to be the one updating it's values not the NPC
+        //Player.Following = NPC;
     }
 
     public override void OnUpdate()
@@ -106,8 +110,8 @@ public class NPCFollowingState : NPCState
         Vector3 Player_LeftSide  = PlayerPosition + (-Player.transform.right * (Player.NavObstacle.radius + NPC.DesiredDistance));
         Vector3 Player_RightSide = PlayerPosition + (Player.transform.right * (Player.NavObstacle.radius + NPC.DesiredDistance));
 
-        Player.LeftSide = Vector3.Distance(NPCPosition, Player_LeftSide) < Vector3.Distance(NPCPosition, Player_RightSide);
-        Agent.SetDestination(Player.LeftSide ? Player_LeftSide : Player_RightSide);
+        PlayerState.LeftSide = Vector3.Distance(NPCPosition, Player_LeftSide) < Vector3.Distance(NPCPosition, Player_RightSide);
+        Agent.SetDestination(PlayerState.LeftSide ? Player_LeftSide : Player_RightSide);
         
         AnimController.SetFloat("Speed", Agent.velocity.magnitude);
     }
@@ -117,13 +121,14 @@ public class NPCFollowingState : NPCState
         base.OnAnimatorIK(LayerIDx);
         
         AnimController.SetIKPositionWeight(IKGoal, 1f);
-        AnimController.SetIKPosition(IKGoal, Player.HandGoal + NPC.HandOffset);
+        AnimController.SetIKPosition(IKGoal, PlayerState.HandGoal + NPC.HandOffset);
     }
 
     public override void OnLeave()
     {
         base.OnLeave();
-        Player.Following = null;
+        //TODO: Player should be the one updating it's values
+        //Player.Following = null;
     }
 }
 
