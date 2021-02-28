@@ -4,6 +4,13 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
+public enum eNPCType
+{
+    Family,
+    Lost,
+    //Hurt
+}
+
 public class NPC : Character
 {
     public float   HandHoldHeight  = 0.5f;
@@ -11,7 +18,6 @@ public class NPC : Character
     public float   BreakDistance   = 2f; //Distance before NPC stops following
     public Vector3 HandOffset = Vector3.zero;
 
-    [HideInInspector] public Animator     AnimController;
     [HideInInspector] public NavMeshAgent Agent;
 
     public NPCIdleState      IdleState;
@@ -43,12 +49,11 @@ public class NPC : Character
 
 public class NPCState : CharacterState
 {
-    public NPC          NPC;
-    public NavMeshAgent Agent          => NPC.Agent;
-    public Animator     AnimController => NPC.AnimController;
-    public Player       Player         => Player.Instance;
+    public NPC          NPC    => (NPC) Character;
+    public NavMeshAgent Agent  => NPC.Agent;
+    public Player       Player => Player.Instance;
 
-    public NPCState(NPC NPC) => this.NPC = NPC;
+    public NPCState(Character Character) : base(Character) {}
 }
 
 public class NPCIdleState : NPCState
@@ -105,7 +110,6 @@ public class NPCFollowingState : NPCState
         Agent.SetDestination(Player.LeftSide ? Player_LeftSide : Player_RightSide);
         
         AnimController.SetFloat("Speed", Agent.velocity.magnitude);
-        Debug.Log($"Is left Side?: {Player.LeftSide}");
     }
 
     public override void OnAnimatorIK(int LayerIDx)

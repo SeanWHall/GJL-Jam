@@ -23,7 +23,6 @@ public class Player : Character
 
    [NonSerialized] public Renderer[]          Renderers;
    [NonSerialized] public CharacterController Controller;
-   [NonSerialized] public Animator            AnimController;
    [NonSerialized] public NavMeshObstacle     NavObstacle;
    [NonSerialized] public Vector3             LastSafePosition; //Respawn points
    [NonSerialized] public bool                CanPlayerInteract;
@@ -184,9 +183,8 @@ public class Player : Character
 
 public class PlayerState : CharacterState
 {
-   public Player              Player;
-   public CharacterController Controller     => Player.Controller;
-   public Animator            AnimController => Player.AnimController;
+   public Player              Player     => (Player) Character;
+   public CharacterController Controller => Player.Controller;
 
    public Vector3 OrientatedInput
    {
@@ -198,7 +196,7 @@ public class PlayerState : CharacterState
       }
    }
    
-   public PlayerState(Player Player) => this.Player = Player;
+   public PlayerState(Character Character) : base(Character) {}
 }
 
 //Player is currently jumping

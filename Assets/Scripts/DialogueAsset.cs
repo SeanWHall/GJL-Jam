@@ -4,24 +4,74 @@ using System.Collections.Generic;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using System.Reflection;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 
 [CustomEditor(typeof(DialogueAsset))]
 public class DialogueAssetEditor : Editor
 {
+   private delegate object FieldDrawerDel(string Name, object Value);
+   
+   //Cache fields, so we dont need to do reflection each time the editor repaints
+   private static Dictionary<Type, FieldInfo[]>    _Serialized_Fields = new Dictionary<Type, FieldInfo[]>();
+   private static Dictionary<Type, FieldDrawerDel> _Type_Drawers      = new Dictionary<Type, FieldDrawerDel>();
+   
    private SerializedProperty Participants_Prop;
    private SerializedProperty Nodes_Prop;
    private int                Node_IDx;
    private string[]           Participants_Names = new string[0];
    private string[]           Nodes_Names        = new string[0];
+   private Type[]             Action_Types       = new Type[0];
+   private string[]           Action_Types_Names = new string[0];
    
    private void OnEnable()
    {
       Participants_Prop = serializedObject.FindProperty("Participants");
       Nodes_Prop        = serializedObject.FindProperty("Nodes");
-   }
 
+      Type   Base_Type     = typeof(DialogueAction);
+      Type[] All_Types     = Base_Type.Assembly.GetTypes();
+      int    All_Types_Len = All_Types.Length;
+
+      int Valid_Types = 0;
+      for (int i = 0; i < All_Types_Len; i++)
+      {
+         Type Current = All_Types[i];
+         if(Current == Base_Type || !Current.IsSubclassOf(Base_Type))
+            continue;
+
+         FieldInfo[] Fields       = Current.GetFields();
+         int         Fields_Len   = Fields.Length;
+         int         Valid_Fields = 0;
+
+         for (int f = 0; f < Fields_Len; f++)
+         {
+            FieldInfo Field = Fields[f];
+            if(Field.GetCustomAttribute<HideInInspector>() != null)
+               continue;
+
+            Fields[Valid_Fields++] = Field;
+         }
+         Array.Resize(ref Fields, Valid_Fields);
+         
+         All_Types[Valid_Types++]    = Current;
+         _Serialized_Fields[Current] = Fields;
+      }
+      Array.Resize(ref All_Types, Valid_Types);
+      Action_Types = All_Types;
+
+      Action_Types_Names = new string[Valid_Types];
+      for (int i = 0; i < Valid_Types; i++)
+         Action_Types_Names[i] = All_Types[i].Name;
+      
+      _Type_Drawers[typeof(string)] = (Name, Value) => EditorGUILayout.TextField(Name,   (string)Value);
+      _Type_Drawers[typeof(int)]    = (Name, Value) => EditorGUILayout.IntField(Name,    (int)Value);
+      _Type_Drawers[typeof(double)] = (Name, Value) => EditorGUILayout.DoubleField(Name, (double)Value);
+      _Type_Drawers[typeof(float)]  = (Name, Value) => EditorGUILayout.DoubleField(Name, (float)Value);
+      _Type_Drawers[typeof(Enum)]   = (Name, Value) => EditorGUILayout.EnumPopup(Name,   (Enum) Value);
+      _Type_Drawers[typeof(bool)]   = (Name, Value) => EditorGUILayout.Toggle(Name,      (bool)Value);
+   }
+   
    public override void OnInspectorGUI()
    {
       serializedObject.Update();
@@ -118,9 +168,9 @@ public class DialogueAssetEditor : Editor
       {
          SerializedProperty Node_Elem       = Nodes_Prop.GetArrayElementAtIndex(Node_IDx);
          SerializedProperty Node_Name       = Node_Elem.FindPropertyRelative("Name");
-         SerializedProperty Node_Speaker    = Node_Elem.FindPropertyRelative("Speaker");
          SerializedProperty Node_Dialogue   = Node_Elem.FindPropertyRelative("Dialogue");
          SerializedProperty Node_Options    = Node_Elem.FindPropertyRelative("Options");
+         SerializedProperty Node_Actions    = Node_Elem.FindPropertyRelative("Actions");
          SerializedProperty Node_AllowLeave = Node_Elem.FindPropertyRelative("AllowLeave");
          
          using (new EditorGUILayout.HorizontalScope())
@@ -136,15 +186,9 @@ public class DialogueAssetEditor : Editor
             
             DeleteNode = GUILayout.Button("Delete", GUILayout.Width(60)) && EditorUtility.DisplayDialog("Dialogue", $"You are about to delete Node: {Node_Name.name}, Are you sure?", "Yep", "Nope");
          }
-
-         int Speaker_IDx     = GetParticipantIDx(Node_Speaker.stringValue);
-         int New_Speaker_IDx = EditorGUILayout.Popup("Speaker", Speaker_IDx, Participants_Names);
-
+         
          Node_AllowLeave.boolValue = EditorGUILayout.Toggle("Allow Leave", Node_AllowLeave.boolValue);
 
-         if (Speaker_IDx != New_Speaker_IDx)
-            Node_Speaker.stringValue = Participants_Names[New_Speaker_IDx];
-         
          EditorGUILayout.Space();
 
          EditorGUILayout.LabelField("Dialogue:", EditorStyles.boldLabel);
@@ -189,6 +233,71 @@ public class DialogueAssetEditor : Editor
          
          if(NodeOption_DeleteIDx != -1)
             Node_Options.DeleteArrayElementAtIndex(NodeOption_DeleteIDx);
+         
+         EditorGUILayout.Space();
+         
+         int Node_Actions_Len = Node_Actions.arraySize;
+         using (new EditorGUILayout.HorizontalScope())
+         {
+            EditorGUILayout.LabelField("Actions:", EditorStyles.boldLabel);
+            if (GUILayout.Button("+", GUILayout.Width(25)))
+               Node_Actions.arraySize++;
+         }
+
+         int Action_DeleteIDx = -1;
+         for (int i = 0; i < Node_Actions_Len; i++)
+         {
+            SerializedProperty Action_Elem = Node_Actions.GetArrayElementAtIndex(i);
+            SerializedProperty Type_Prop   = Action_Elem.FindPropertyRelative("Type");
+            SerializedProperty JSON_Prop   = Action_Elem.FindPropertyRelative("JSon");
+            Type               ActionType  = null;
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+               int Type_IDx     = GetActionTypeIDx(Type_Prop.stringValue);
+               int New_Type_IDx = EditorGUILayout.Popup(Type_IDx, Action_Types_Names);
+
+               if (Type_IDx != New_Type_IDx)
+               {
+                  Type_Prop.stringValue = Action_Types[New_Type_IDx].AssemblyQualifiedName;
+                  JSON_Prop.stringValue = String.Empty;
+               }
+
+               if (New_Type_IDx != -1)
+                  ActionType = Action_Types[New_Type_IDx];
+
+               if (GUILayout.Button("X", GUILayout.Width(25)))
+                  Action_DeleteIDx = i;
+            }
+            
+            if (ActionType == null)
+               continue;
+
+            string         Action_JSON          = JSON_Prop.stringValue;
+            DialogueAction Action_Object        = (DialogueAction) (string.IsNullOrEmpty(Action_JSON) ? Activator.CreateInstance(ActionType) : JsonUtility.FromJson(Action_JSON, ActionType));
+            FieldInfo[]    SerializedFields     = _Serialized_Fields[ActionType];
+            int            SerializedFields_Len = SerializedFields.Length;
+
+            int Participant_IDx       = GetParticipantIDx(Action_Object.Participant);
+            int New_Participant_IDx   = EditorGUILayout.Popup("Participant", Participant_IDx, Participants_Names);
+            
+            if(Participant_IDx != New_Participant_IDx)
+               Action_Object.Participant =  Participants_Names[New_Participant_IDx];
+            
+            for (int i_2 = 0; i_2 < SerializedFields_Len; i_2++)
+            {
+               FieldInfo Field = SerializedFields[i_2];
+               if(!_Type_Drawers.TryGetValue(Field.FieldType, out FieldDrawerDel Drawer))
+                  continue; //Ignore types which dont have a drawer
+
+               Field.SetValue(Action_Object, Drawer(Field.Name, Field.GetValue(Action_Object)));
+            }
+
+            JSON_Prop.stringValue = JsonUtility.ToJson(Action_Object);
+         }
+         
+         if(Action_DeleteIDx != -1)
+            Node_Actions.DeleteArrayElementAtIndex(Action_DeleteIDx);
       }
       
       if (DeleteNode)
@@ -218,8 +327,19 @@ public class DialogueAssetEditor : Editor
          }
       }
    }
-   
 
+   private int GetActionTypeIDx(string TypeName)
+   {
+      int Len = Action_Types.Length;
+      for (int i = 0; i < Len; i++)
+      {
+         if (Action_Types[i].AssemblyQualifiedName == TypeName)
+            return i;
+      }
+
+      return -1;
+   }
+   
    private int GetNodeIDx(string Name)
    {
       int Len = Nodes_Names.Length;
@@ -278,21 +398,75 @@ public class DialogueAsset : ScriptableObject
    }
 }
 
-[System.Serializable]
+[Serializable]
 public class DialogueNode
 {
-   //TODO: Add Animations & Sounds to go with dialogue
-   public string           Name; //Used to find Node
-   public string           Speaker;
-   public string           Dialogue;
-   public bool             AllowLeave = true;
-   public DialogueOption[] Options;
+   public string             Name; //Used to find Node
+   public string             Dialogue;
+   public bool               AllowLeave = true;
+   public DialogueOption[]   Options;
+   public SerializedAction[] Actions;
 }
 
-[System.Serializable]
+[Serializable]
 public class DialogueOption
 {
-   //TODO: Add conditional checks, so this option is only shown when the condition is met
-   public string Text;
-   public string NextNode;
+   public string             Text;
+   public string             NextNode;
+   public ParticipantBools[] Bools; //Requires these bools to be shown
+}
+
+[Serializable]
+public struct ParticipantBools
+{
+   public string Participant;
+   public string Key;
+}
+
+[Serializable]
+public class SerializedAction
+{
+   public string Type;
+   public string JSon;
+
+   [NonSerialized]
+   private DialogueAction _Action;
+   public DialogueAction Action => _Action ?? (_Action = (DialogueAction)JsonUtility.FromJson(JSon, System.Type.GetType(Type)));
+}
+
+[Serializable]
+public abstract class DialogueAction
+{
+   [HideInInspector]
+   public string Participant;
+   public abstract void Trigger(Character Context);
+}
+
+public class DialogueAnimationAction : DialogueAction
+{
+   public string StateName;
+
+   public override void Trigger(Character Context)
+   {
+      Debug.Log($"Playing State: {StateName} On Character: {Context.Name}");
+      Context.AnimController.Play(StateName);
+   }
+}
+
+public class DialogueSetBoolAction : DialogueAction
+{
+   public string Key;
+   public bool   Value;
+
+   public override void Trigger(Character Context)
+   {
+      Debug.Log($"Setting Dialogue Bool: {Key} = {Value} On Character: {Context.Name}");
+      
+      int IDx = Context.GetDialogueBoolIDx(Key);
+      if (IDx == -1)
+         return;
+
+      //Update Bool on Participant
+      Context.Bools[IDx].Value = Value;
+   }
 }

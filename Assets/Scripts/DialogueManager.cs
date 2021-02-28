@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -88,6 +89,25 @@ public class DialogueManager : BaseBehaviour
 
         HUD.Instance.Dialogue_Text.text = Node.Dialogue;
 
+        int Actions_Len = Node.Actions.Length;
+        for (int i = 0; i < Actions_Len; i++)
+        {
+            DialogueAction Action = Node.Actions[i].Action;
+            if(Action == null)
+                continue;
+
+            Character Participant = FindParticipant(Action.Participant);
+            if (Participant == null)
+            {
+                Error($"Failed to find Participant: {Action.Participant} For Action: {Action.GetType().Name}");
+                continue;
+            }
+            
+            //Run Action in try 'n Catch, so as to not impede the Dialogue if an exception is thrown
+            try { Action.Trigger(Participant);}
+            catch (Exception Ex) { Debug.LogException(Ex); }
+        }
+        
         int Options_Len = Node.Options.Length;
         for (int i = 0; i < Options_Len; i++)
         {

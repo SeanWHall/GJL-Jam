@@ -3,11 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public struct DialogueBool
+{
+   public string Key;
+   public bool   Value;
+}
+
 public abstract class Character : BaseBehaviour
 {
    public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
-   public string Name; //Used to match in dialogue
+   public string         Name; //Used to match in dialogue
+   public DialogueBool[] Bools; //Used to determine the story context
+
+   [NonSerialized] public Animator AnimController;
    
    private CharacterState _ActiveState;
    public CharacterState ActiveState
@@ -23,6 +33,25 @@ public abstract class Character : BaseBehaviour
       }
    }
 
+   public override void OnEnable()
+   {
+      base.OnEnable();
+
+      AnimController = GetComponent<Animator>();
+   }
+
+   public int GetDialogueBoolIDx(string Key)
+   {
+      int Len = Bools.Length;
+      for (int i = 0; i < Len; i++)
+      {
+         if (Bools[i].Key == Key)
+            return i;
+      }
+
+      return -1;
+   }
+
    public abstract void OnDialogueEvent(DialogueEvent Ev);
 
    public override void OnUpdate(float DeltaTime)    => _ActiveState?.OnUpdate();
@@ -31,8 +60,13 @@ public abstract class Character : BaseBehaviour
 
 public class CharacterState
 {
-   public float        TimeInState = 0;
-   public InputManager InputManager => InputManager.Instance;
+   public Character Character;
+   public float     TimeInState = 0;
+   
+   public InputManager InputManager   => InputManager.Instance;
+   public Animator     AnimController => Character.AnimController;
+
+   public CharacterState(Character Character) => this.Character = Character;
 
    public virtual void OnEnter()  => TimeInState = 0;
    public virtual void OnUpdate() => TimeInState += Time.unscaledDeltaTime;

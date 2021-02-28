@@ -14,24 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Participants:
   - Player
-  - NPC
+  - Lost Child
   Nodes:
   - Name: Intro
-    Speaker: NPC
     Dialogue: Hello
     AllowLeave: 1
     Options:
     - Text: Hello....
       NextNode: After Saying Hello
+      Bools: []
     - Text: FUCK YOU
       NextNode: After saying fuck you
+      Bools: []
+    Actions:
+    - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"","Key":"","Value":false}'
   - Name: After Saying Hello
-    Speaker: NPC
     Dialogue: You know fuck you
     AllowLeave: 1
     Options: []
+    Actions: []
   - Name: After saying fuck you
-    Speaker: 
     Dialogue: Thats not very nice
     AllowLeave: 1
     Options: []
+    Actions: []
