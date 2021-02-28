@@ -63,7 +63,23 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.33361205
+        functionName: footstepWalkLeft
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 1b73b4d9f03e94d409d20c73062ddedc,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.81856185
+        functionName: footstepWalkRight
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 1b73b4d9f03e94d409d20c73062ddedc,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
