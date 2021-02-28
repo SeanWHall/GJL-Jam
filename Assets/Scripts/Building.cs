@@ -11,6 +11,9 @@ public class Building : BaseBehaviour
             return;
 
         SetRenderersState(false);
+
+        if (CameraController.Instance != null)
+            CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
     }
 
     public void OnTriggerExit(Collider other)
@@ -19,6 +22,8 @@ public class Building : BaseBehaviour
             return;
 
         SetRenderersState(true);
+        if (CameraController.Instance != null)
+            CameraController.Instance.ActiveState = CameraController.Instance.BoatState;
     }
 
     private bool IsPlayer(Collider Col) => Col.GetComponentInChildren<Player>() != null || Col.GetComponentInParent<Player>() != null;
@@ -26,6 +31,6 @@ public class Building : BaseBehaviour
     private void SetRenderersState(bool State)
     {
         foreach (var Renderer in Renderers)
-            Renderer.shadowCastingMode = State ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            Renderer.shadowCastingMode = State ? ShadowCastingMode.On : ShadowCastingMode.ShadowsOnly;
     }
 }
