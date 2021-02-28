@@ -2,7 +2,7 @@
 
 public class FenceBlocker : BaseBehaviour, IInteractable
 {
-   public int        InteractionPriority  => 10;
+   public int        InteractionPriority  => 7;
    public float      InteractionDistance  => 5f;
    public string     InteractionText      => "Cut Fence";
    public Vector3    Position             => transform.position;

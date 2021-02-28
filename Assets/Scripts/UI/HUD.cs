@@ -53,7 +53,7 @@ public class HUD : BaseBehaviour
         base.OnEnable();
 
         m_Toony_Shader = Shader.Find("Toony");
-        HideDialogue();
+        Dialogue_Root.gameObject.SetActive(false);
         
         RootRect = (RectTransform) transform;
         BlackScreen.gameObject.SetActive(false);

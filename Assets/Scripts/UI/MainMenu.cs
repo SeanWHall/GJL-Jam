@@ -18,8 +18,8 @@ public class MainMenu : BaseBehaviour
          return;
       
       
-      Cursor.lockState = CursorLockMode.Locked;
-      Cursor.visible   = false;
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible   = true;
       
       m_Cutscene_Routine = StartCoroutine(StartGameRoutine());
    }
@@ -46,6 +46,7 @@ public class MainMenu : BaseBehaviour
          yield return new WaitForEndOfFrame();
       
       //Load the Level!
+      LoadingManager.LoadLevel("BlockOut");
    }
 
    private IEnumerator FadeUI()
