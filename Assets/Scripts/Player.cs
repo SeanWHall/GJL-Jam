@@ -252,7 +252,7 @@ public class PlayerLocomotionState : PlayerState
       AnimController.SetFloat("Speed", Movement.magnitude);
       Controller.Move((Velocity + Physics.gravity) * Time.deltaTime);
 
-      if (Boat.Instance.Dock != null)
+      if (Boat.Instance != null && Boat.Instance.Dock != null)
          Player.LastSafePosition = Boat.Instance.Dock.Player_ExitPoint.position;
    }
 
