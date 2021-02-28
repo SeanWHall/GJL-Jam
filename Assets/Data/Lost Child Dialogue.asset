@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09b2aef7bd62a0428096a9a769bd176, type: 3}
+  m_Name: Lost Child Dialogue
+  m_EditorClassIdentifier: 
+  Participants:
+  - Player
+  - Lost Child
+  Nodes:
+  - Name: Intro
+    Dialogue: You Approach the child, he looks up wondering who you are
+    AllowLeave: 1
+    Options:
+    - Text: Hello....
+      NextNode: After Saying Hello
+      Bools: []
+    Actions: []
+  - Name: After Saying Hello
+    Dialogue: 'He beings to say something, that you remember might mean hello in
+      another language...
+
+      Maybe there is another way to comunicate with him'
+    AllowLeave: 1
+    Options:
+    - Text: Show Picture of Family
+      NextNode: Show Picture
+      Bools: []
+    Actions: []
+  - Name: Show Picture
+    Dialogue: The kids eyes light up and nods his head
+    AllowLeave: 1
+    Options: []
+    Actions:
+    - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Lost Child","Key":"Follow","Value":true}'
+    - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Lost Child","Key":"IsLost","Value":false}'

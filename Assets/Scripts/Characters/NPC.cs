@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem;
 
 [System.Serializable]
 public class DialogueReference
 {
     public string        Key;
+    public bool          State;
     public DialogueAsset Asset;
 }
 
@@ -13,14 +13,11 @@ public class NPC : Character, IInteractable
 {
     public float   CommunicationDistance = 2f;
     
-
     public DialogueReference[] Dialogues;
     
     [HideInInspector] public NavMeshAgent Agent;
 
     public NPCIdleState      IdleState;
-    public NPCBoatState      BoatState;
-    public NPCFollowingState FollowingState;
     public NPCDialogueState  DialogueState;
 
     public float      InteractionDistance  => CommunicationDistance;
@@ -36,8 +33,6 @@ public class NPC : Character, IInteractable
         Agent          = GetComponent<NavMeshAgent>();
 
         IdleState      = new NPCIdleState(this);
-        BoatState      = new NPCBoatState(this);
-        FollowingState = new NPCFollowingState(this);
         DialogueState  = new NPCDialogueState(this);
 
         ActiveState = IdleState;
@@ -56,7 +51,7 @@ public class NPC : Character, IInteractable
             DialogueReference Reference = Dialogues[i];
             int               BoolIDx   = GetDialogueBoolIDx(Reference.Key);
             
-            if(BoolIDx == -1 || !Bools[BoolIDx].Value)
+            if(BoolIDx == -1 || Bools[BoolIDx].Value != Reference.State)
                 continue;
 
             return Reference.Asset;
@@ -81,18 +76,6 @@ public class NPCState : CharacterState
 public class NPCIdleState : NPCState
 {
     public NPCIdleState(NPC NPC) : base(NPC) {}
-
-    public override void OnUpdate()
-    {
-        base.OnUpdate();
-
-        //TODO: Finish AI Logic
-        //if (Keyboard.current.jKey.isPressed && Player.Following == null)
-        //{
-        //    //Only Switch to the following state, if no other NPC is currently following the player
-        //    NPC.ActiveState = NPC.FollowingState;
-        //}
-    }
 }
 
 public class NPCDialogueState : NPCState

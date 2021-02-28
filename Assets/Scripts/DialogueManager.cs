@@ -87,7 +87,7 @@ public class DialogueManager : BaseBehaviour
             DialogueAction Action = Node.Actions[i].Action;
             if(Action == null)
                 continue;
-
+            
             Character Participant = FindParticipant(Action.Participant);
             if (Participant == null)
             {
@@ -104,6 +104,42 @@ public class DialogueManager : BaseBehaviour
         for (int i = 0; i < Options_Len; i++)
         {
             DialogueOption Option = Node.Options[i];
+
+            //Check if we should add this option, all bools must pass state check
+            bool Bools_Valid = true;
+            int  Bools_Len   = Option.Bools.Length;
+
+            for (int b = 0; b < Bools_Len; b++)
+            {
+                ParticipantBools Bool        = Option.Bools[b];
+                Character        Participant = FindParticipant(Bool.Participant);
+
+                if (Participant == null)
+                {
+                    Error($"Failed to find Participant: {Bool.Participant} For Bool: {b} In Dialogue: {DialogueAsset.name}");
+                    Bools_Valid = false;
+                    break;
+                }
+
+                int Bool_IDx = Participant.GetDialogueBoolIDx(Bool.Key);
+                if (Bool_IDx == -1)
+                {
+                    Error($"Failed to find dialogue bool: {Bool.Key} On Participant: {Bool.Participant} In Dialogue: {DialogueAsset.name}");
+                    Bools_Valid = false;
+                    break;
+                }
+                
+                if(Participant.Bools[Bool_IDx].Value == Bool.State)
+                    continue;
+                
+                //Bool is not what we expect
+                Bools_Valid = false;
+                break;
+            }
+            
+            if(!Bools_Valid)
+                continue; //Not all bools are valid, skip this option
+            
             HUD.Instance.AddDialogueOption(Option.Text, OnOptionClick);
 
             void OnOptionClick()

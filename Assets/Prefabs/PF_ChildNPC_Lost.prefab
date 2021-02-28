@@ -178,9 +178,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Lost Child
-  Bools: []
+  Bools:
+  - Key: IsLost
+    Value: 1
+  - Key: Follow
+    Value: 0
   CommunicationDistance: 2
-  Dialogues: []
+  Dialogues:
+  - Key: IsLost
+    State: 1
+    Asset: {fileID: 11400000, guid: 53abe4eb49608b74495d609d5437cc95, type: 2}
+  - Key: IsLost
+    State: 0
+    Asset: {fileID: 11400000, guid: 6deb6fdf37c8bed40a495518f4badd6d, type: 2}
   Agent: {fileID: 0}
   HandHoldHeight: 0.5
   DesiredDistance: 0.5

@@ -150,7 +150,6 @@ public class DialogueAssetEditor : Editor
             
             SerializedProperty New_Node = Nodes_Prop.GetArrayElementAtIndex(Nodes_Len);
             New_Node.FindPropertyRelative("Name").stringValue     = $"New Node {Nodes_Len}";
-            New_Node.FindPropertyRelative("Speaker").stringValue  = string.Empty;
             New_Node.FindPropertyRelative("Dialogue").stringValue = string.Empty;
             New_Node.FindPropertyRelative("Options").arraySize    = 0;
             
@@ -205,13 +204,15 @@ public class DialogueAssetEditor : Editor
          int NodeOption_DeleteIDx = -1;
          for (int i = 0; i < Node_Options_Len; i++)
          {
+            SerializedProperty Option_Elem   = Node_Options.GetArrayElementAtIndex(i);
+            SerializedProperty Text_Prop     = Option_Elem.FindPropertyRelative("Text");
+            SerializedProperty NextNode_Prop = Option_Elem.FindPropertyRelative("NextNode");
+            SerializedProperty Bools_Prop    = Option_Elem.FindPropertyRelative("Bools");
+            
             using (new EditorGUILayout.HorizontalScope())
             {
-               SerializedProperty Option_Elem   = Node_Options.GetArrayElementAtIndex(i);
-               SerializedProperty Text_Prop     = Option_Elem.FindPropertyRelative("Text");
-               SerializedProperty NextNode_Prop = Option_Elem.FindPropertyRelative("NextNode");
-               
-               Text_Prop.stringValue = EditorGUILayout.TextField(Text_Prop.stringValue);
+               Option_Elem.isExpanded = EditorGUI.Foldout(EditorGUILayout.GetControlRect(GUILayout.Width(20)), Option_Elem.isExpanded, GUIContent.none);
+               Text_Prop.stringValue  = EditorGUILayout.TextField(Text_Prop.stringValue);
 
                int NextNode_IDx     = GetNodeIDx(NextNode_Prop.stringValue);
                int New_NextNode_IDx = EditorGUILayout.Popup(NextNode_IDx, Nodes_Names);
@@ -229,6 +230,53 @@ public class DialogueAssetEditor : Editor
                if (GUILayout.Button("X", GUILayout.Width(25)))
                   NodeOption_DeleteIDx = i;
             }
+            
+            if(!Option_Elem.isExpanded)
+               continue;
+
+            using (new EditorGUI.IndentLevelScope())
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+               int Bools_Len = Bools_Prop.arraySize;
+               using (new EditorGUILayout.HorizontalScope())
+               {
+                  EditorGUILayout.LabelField("Bools:", EditorStyles.boldLabel);
+                  GUILayout.FlexibleSpace();
+                  if (GUILayout.Button("+", GUILayout.Width(25)))
+                     Bools_Prop.arraySize++;
+               }
+
+               int Bool_DeleteIDx = -1;
+
+               for (int b = 0; b < Bools_Len; b++)
+               {
+                  using (new EditorGUILayout.HorizontalScope())
+                  {
+                     SerializedProperty Bool_Elem           = Bools_Prop.GetArrayElementAtIndex(b);
+                     SerializedProperty Bool_Participant    = Bool_Elem.FindPropertyRelative("Participant");
+                     SerializedProperty Bool_Key            = Bool_Elem.FindPropertyRelative("Key");
+                     SerializedProperty Bool_State          = Bool_Elem.FindPropertyRelative("State");
+                     
+                     int Participant_IDx     = GetParticipantIDx(Bool_Participant.stringValue);
+                     int New_Participant_IDx = EditorGUILayout.Popup(Participant_IDx, Participants_Names, GUILayout.MaxWidth(200));
+
+                     if (Participant_IDx != New_Participant_IDx)
+                        Bool_Participant.stringValue = Participants_Names[New_Participant_IDx];
+
+                     Bool_Key.stringValue = EditorGUILayout.TextField(Bool_Key.stringValue, GUILayout.MaxWidth(200));
+                     
+                     
+                     Bool_State.boolValue = EditorGUILayout.Toggle(Bool_State.boolValue, GUILayout.Width(50));
+                     
+                     GUILayout.FlexibleSpace();
+                     if(GUILayout.Button("X", GUILayout.Width(25)))
+                        Bool_DeleteIDx = b;
+                  }
+               }
+               
+               if(Bool_DeleteIDx != -1)
+                  Bools_Prop.DeleteArrayElementAtIndex(Bool_DeleteIDx);
+            }
          }
          
          if(NodeOption_DeleteIDx != -1)
@@ -244,60 +292,64 @@ public class DialogueAssetEditor : Editor
                Node_Actions.arraySize++;
          }
 
-         int Action_DeleteIDx = -1;
-         for (int i = 0; i < Node_Actions_Len; i++)
+         using (new EditorGUI.IndentLevelScope())
+         using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
          {
-            SerializedProperty Action_Elem = Node_Actions.GetArrayElementAtIndex(i);
-            SerializedProperty Type_Prop   = Action_Elem.FindPropertyRelative("Type");
-            SerializedProperty JSON_Prop   = Action_Elem.FindPropertyRelative("JSon");
-            Type               ActionType  = null;
-
-            using (new EditorGUILayout.HorizontalScope())
+            int Action_DeleteIDx = -1;
+            for (int i = 0; i < Node_Actions_Len; i++)
             {
-               int Type_IDx     = GetActionTypeIDx(Type_Prop.stringValue);
-               int New_Type_IDx = EditorGUILayout.Popup(Type_IDx, Action_Types_Names);
+               SerializedProperty Action_Elem = Node_Actions.GetArrayElementAtIndex(i);
+               SerializedProperty Type_Prop   = Action_Elem.FindPropertyRelative("Type");
+               SerializedProperty JSON_Prop   = Action_Elem.FindPropertyRelative("JSon");
+               Type               ActionType  = null;
 
-               if (Type_IDx != New_Type_IDx)
+               using (new EditorGUILayout.HorizontalScope())
                {
-                  Type_Prop.stringValue = Action_Types[New_Type_IDx].AssemblyQualifiedName;
-                  JSON_Prop.stringValue = String.Empty;
+                  int Type_IDx     = GetActionTypeIDx(Type_Prop.stringValue);
+                  int New_Type_IDx = EditorGUILayout.Popup(Type_IDx, Action_Types_Names);
+
+                  if (Type_IDx != New_Type_IDx)
+                  {
+                     Type_Prop.stringValue = Action_Types[New_Type_IDx].AssemblyQualifiedName;
+                     JSON_Prop.stringValue = String.Empty;
+                  }
+
+                  if (New_Type_IDx != -1)
+                     ActionType = Action_Types[New_Type_IDx];
+
+                  if (GUILayout.Button("X", GUILayout.Width(25)))
+                     Action_DeleteIDx = i;
                }
 
-               if (New_Type_IDx != -1)
-                  ActionType = Action_Types[New_Type_IDx];
+               if (ActionType == null)
+                  continue;
 
-               if (GUILayout.Button("X", GUILayout.Width(25)))
-                  Action_DeleteIDx = i;
+               string         Action_JSON          = JSON_Prop.stringValue;
+               DialogueAction Action_Object        = (DialogueAction) (string.IsNullOrEmpty(Action_JSON) ? Activator.CreateInstance(ActionType) : JsonUtility.FromJson(Action_JSON, ActionType));
+               FieldInfo[]    SerializedFields     = _Serialized_Fields[ActionType];
+               int            SerializedFields_Len = SerializedFields.Length;
+
+               int Participant_IDx     = GetParticipantIDx(Action_Object.Participant);
+               int New_Participant_IDx = EditorGUILayout.Popup("Participant", Participant_IDx, Participants_Names);
+
+               if (Participant_IDx != New_Participant_IDx)
+                  Action_Object.Participant = Participants_Names[New_Participant_IDx];
+
+               for (int i_2 = 0; i_2 < SerializedFields_Len; i_2++)
+               {
+                  FieldInfo Field = SerializedFields[i_2];
+                  if (!_Type_Drawers.TryGetValue(Field.FieldType, out FieldDrawerDel Drawer))
+                     continue; //Ignore types which dont have a drawer
+
+                  Field.SetValue(Action_Object, Drawer(Field.Name, Field.GetValue(Action_Object)));
+               }
+
+               JSON_Prop.stringValue = JsonUtility.ToJson(Action_Object);
             }
             
-            if (ActionType == null)
-               continue;
-
-            string         Action_JSON          = JSON_Prop.stringValue;
-            DialogueAction Action_Object        = (DialogueAction) (string.IsNullOrEmpty(Action_JSON) ? Activator.CreateInstance(ActionType) : JsonUtility.FromJson(Action_JSON, ActionType));
-            FieldInfo[]    SerializedFields     = _Serialized_Fields[ActionType];
-            int            SerializedFields_Len = SerializedFields.Length;
-
-            int Participant_IDx       = GetParticipantIDx(Action_Object.Participant);
-            int New_Participant_IDx   = EditorGUILayout.Popup("Participant", Participant_IDx, Participants_Names);
-            
-            if(Participant_IDx != New_Participant_IDx)
-               Action_Object.Participant =  Participants_Names[New_Participant_IDx];
-            
-            for (int i_2 = 0; i_2 < SerializedFields_Len; i_2++)
-            {
-               FieldInfo Field = SerializedFields[i_2];
-               if(!_Type_Drawers.TryGetValue(Field.FieldType, out FieldDrawerDel Drawer))
-                  continue; //Ignore types which dont have a drawer
-
-               Field.SetValue(Action_Object, Drawer(Field.Name, Field.GetValue(Action_Object)));
-            }
-
-            JSON_Prop.stringValue = JsonUtility.ToJson(Action_Object);
+            if(Action_DeleteIDx != -1)
+               Node_Actions.DeleteArrayElementAtIndex(Action_DeleteIDx);
          }
-         
-         if(Action_DeleteIDx != -1)
-            Node_Actions.DeleteArrayElementAtIndex(Action_DeleteIDx);
       }
       
       if (DeleteNode)
@@ -404,8 +456,8 @@ public class DialogueNode
    public string             Name; //Used to find Node
    public string             Dialogue;
    public bool               AllowLeave = true;
-   public DialogueOption[]   Options;
-   public SerializedAction[] Actions;
+   public DialogueOption[]   Options = new DialogueOption[0];
+   public SerializedAction[] Actions = new SerializedAction[0];
 }
 
 [Serializable]
@@ -413,7 +465,7 @@ public class DialogueOption
 {
    public string             Text;
    public string             NextNode;
-   public ParticipantBools[] Bools; //Requires these bools to be shown
+   public ParticipantBools[] Bools = new ParticipantBools[0]; //Requires these bools to be shown
 }
 
 [Serializable]
@@ -421,6 +473,7 @@ public struct ParticipantBools
 {
    public string Participant;
    public string Key;
+   public bool   State;
 }
 
 [Serializable]
@@ -448,7 +501,6 @@ public class DialogueAnimationAction : DialogueAction
 
    public override void Trigger(Character Context)
    {
-      if(!(Context is CharacterState))
       Debug.Log($"Playing State: {StateName} On Character: {Context.Name}");
       Context.AnimController.Play(StateName);
    }

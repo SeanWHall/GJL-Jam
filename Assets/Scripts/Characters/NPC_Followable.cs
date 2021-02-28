@@ -47,6 +47,20 @@ public class NPC_Followable : NPC
 public class NPCBoatState : NPCState
 {
     public NPCBoatState(NPC NPC) : base(NPC) {}
+
+    public override void OnEnter()
+    {
+        base.OnEnter();
+        
+        AnimController.SetBool("IsSitting", true);
+    }
+
+    public override void OnLeave()
+    {
+        base.OnLeave();
+        
+        AnimController.SetBool("IsSitting", false);
+    }
 }
 
 public class NPCCarryState : NPCState
@@ -103,6 +117,8 @@ public class NPCFollowingState : NPCState
     public override void OnLeave()
     {
         base.OnLeave();
+        
+        AnimController.SetFloat("Speed", 0);
         //TODO: Player should be the one updating it's values
         //Player.Following = null;
     }
