@@ -17,7 +17,7 @@ MonoBehaviour:
   - Player
   Nodes:
   - Name: Intro
-    Dialogue: You Approach the Mother
+    Dialogue: You approach the survior and ask if they need help.
     AllowLeave: 1
     Options:
     - Text: Hello?
@@ -25,7 +25,10 @@ MonoBehaviour:
       Bools: []
     Actions: []
   - Name: After Intro
-    Dialogue: Mother Gurgles
+    Dialogue: 'She does not understand what you are saying.
+
+      She mimics clicking
+      on and off a flashlight. '
     AllowLeave: 1
     Options:
     - Text: Give Flashlight
@@ -36,7 +39,10 @@ MonoBehaviour:
         State: 1
     Actions: []
   - Name: Give Flash Light
-    Dialogue: Mother Gurgles Hapily
+    Dialogue: 'The survivor looks at you happily and
+
+      tells you thank you in
+      their own language.'
     AllowLeave: 1
     Options: []
     Actions:

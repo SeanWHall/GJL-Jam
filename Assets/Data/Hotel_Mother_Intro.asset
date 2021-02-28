@@ -17,7 +17,7 @@ MonoBehaviour:
   - Player
   Nodes:
   - Name: Intro
-    Dialogue: Player Approaches Mother
+    Dialogue: 'You approach the mother on the rooftop. She seems worried. '
     AllowLeave: 1
     Options:
     - Text: Hello
@@ -25,7 +25,9 @@ MonoBehaviour:
       Bools: []
     Actions: []
   - Name: After Intro
-    Dialogue: Mother Gurgles, but hands Picture of Son
+    Dialogue: "The woman talks in distress but she is speaking a \ndifferent language
+      to the one that you know. \nMaybe there is another way you can communicate.
+      \nShe hands you a family photo and points to a picture \nof her child."
     AllowLeave: 1
     Options: []
     Actions:
