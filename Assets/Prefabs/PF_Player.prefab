@@ -336,8 +336,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mySounds:
   - {fileID: 8300000, guid: 55980b1ac3c9ed84da5aff694bb6e89e, type: 3}
-  - {fileID: 8300000, guid: 55980b1ac3c9ed84da5aff694bb6e89e, type: 3}
-  - {fileID: 8300000, guid: 55980b1ac3c9ed84da5aff694bb6e89e, type: 3}
+  - {fileID: 8300000, guid: 92f2156c688ad1a4b9e83fc9e578d64a, type: 3}
+  - {fileID: 8300000, guid: 65f26aa86b2a8d045ba3af8a931b27b3, type: 3}
   myAudioSource: {fileID: 2013845741756224546}
 --- !u!114 &2858703318941321557
 MonoBehaviour:
