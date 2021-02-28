@@ -40,7 +40,6 @@ public class Player : Character
    [NonSerialized] public NavMeshObstacle     NavObstacle;
    [NonSerialized] public Vector3             LastSafePosition; //Respawn points
    [NonSerialized] public float               NextInteractionTime;
-   [NonSerialized] public List<Item>          Inventory = new List<Item>();
    
    public PlayerLocomotionState    LocomotionState;
    public PlayerBoatState          BoatState;

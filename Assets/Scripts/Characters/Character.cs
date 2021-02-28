@@ -16,6 +16,7 @@ public abstract class Character : BaseBehaviour
 
    public string         Name; //Used to match in dialogue
    public DialogueBool[] Bools; //Used to determine the story context
+   public List<Item>     Inventory = new List<Item>(); //Serialized so characters can start the game with items in their inventory
 
    [NonSerialized] public Animator AnimController;
    
@@ -38,6 +39,44 @@ public abstract class Character : BaseBehaviour
       base.OnEnable();
 
       AnimController = GetComponent<Animator>();
+   }
+
+   public void AddItem(Item NewItem)
+   {
+      Inventory.Add(NewItem);
+      NewItem.OnAddedToInventory(this);
+   }
+
+   public Item RemoveItem(int IDx)
+   {
+      if (IDx < 0 || IDx > Inventory.Count)
+         return null;
+
+      Item Target = Inventory[IDx];
+      RemoveItem(Target);
+
+      return Target;
+   }
+   
+   public void RemoveItem(Item NewItem)
+   {
+      if (!Inventory.Remove(NewItem))
+         return;
+      
+      NewItem.OnRemoveFromInventory(this);
+   }
+   
+   //using the item name is bad practice, IE if we wanted to do localization. But its fine for this jam
+   public int GetInventoryItemIDx(string ItemName)
+   {
+      int Inventory_Len = Inventory.Count;
+      for (int i = 0; i < Inventory_Len; i++)
+      {
+         if (Inventory[i].ItemName == ItemName)
+            return i;
+      }
+
+      return -1;
    }
 
    public abstract void OnEnterDialogue(Character[] Participants);

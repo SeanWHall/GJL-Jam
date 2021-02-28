@@ -96,7 +96,7 @@ public class DialogueManager : BaseBehaviour
             }
             
             //Run Action in try 'n Catch, so as to not impede the Dialogue if an exception is thrown
-            try { Action.Trigger(Participant);}
+            try { Action.Trigger(new DialogueContext {Target = Participant});}
             catch (Exception Ex) { Debug.LogException(Ex); }
         }
         
@@ -183,9 +183,4 @@ public class DialogueManager : BaseBehaviour
 
         return null;
     }
-}
-
-public interface IIDialogueCharacter
-{
-    string Name { get; }
 }

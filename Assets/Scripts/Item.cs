@@ -5,6 +5,7 @@ public class Item : BaseBehaviour, IInteractable
    public string    ItemName;
    public Texture2D ItemIcon;
    public Item      ItemPrefab;
+   public string    DialogueBool_Key;
 
    public int        InteractionPriority  => 1;
    public float      InteractionDistance  => 1f;
@@ -18,11 +19,35 @@ public class Item : BaseBehaviour, IInteractable
       InteractionMaterials = this.CollectAllMaterials();
    }
 
+   public void OnAddedToInventory(Character character)
+   {
+      if (string.IsNullOrEmpty(DialogueBool_Key))
+         return;
+
+      int Bool_IDx = character.GetDialogueBoolIDx(DialogueBool_Key);
+      if (Bool_IDx == -1)
+         return;
+
+      character.Bools[Bool_IDx].Value = true;
+   }
+
+   public void OnRemoveFromInventory(Character character)
+   {
+      if (string.IsNullOrEmpty(DialogueBool_Key))
+         return;
+      
+      int Bool_IDx = character.GetDialogueBoolIDx(DialogueBool_Key);
+      if (Bool_IDx == -1)
+         return;
+      
+      character.Bools[Bool_IDx].Value = false;
+   }
+
    public bool CanInteract(Player player) => player.ActiveState is PlayerLocomotionState;
 
    public void OnInteract(Player player)
    {
-      player.Inventory.Add(ItemPrefab);
+      player.AddItem(ItemPrefab);
       Destroy(gameObject); //Destroy instance of the prefab
    }
 }
