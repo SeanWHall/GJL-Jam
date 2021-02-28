@@ -141,7 +141,7 @@ public class DialogueGiveItemAction : DialogueAction
       
       if (TargetItem == null)
       {
-         Debug.LogError($"Failed to Remove item: {ItemName} From: {RecieverParticipant}");
+         Debug.LogError($"Failed to Remove item: {ItemName} From: {Context.Target.name}");
          return;
       }
       

@@ -4,7 +4,6 @@ public class Item : BaseBehaviour, IInteractable
 {
    public string    ItemName;
    public Texture2D ItemIcon;
-   public Item      ItemPrefab;
    public string    DialogueBool_Key;
 
    public int        InteractionPriority  => 1;
@@ -47,7 +46,7 @@ public class Item : BaseBehaviour, IInteractable
 
    public void OnInteract(Player player)
    {
-      player.AddItem(ItemPrefab);
-      Destroy(gameObject); //Destroy instance of the prefab
+      player.AddItem(this);
+      gameObject.SetActive(false);
    }
 }

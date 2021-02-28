@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09b2aef7bd62a0428096a9a769bd176, type: 3}
+  m_Name: Shop_Mother_Flashlight
+  m_EditorClassIdentifier: 
+  Participants:
+  - Flash Light Mother
+  - Player
+  Nodes:
+  - Name: Intro
+    Dialogue: You Approach the Mother
+    AllowLeave: 1
+    Options:
+    - Text: Hello?
+      NextNode: After Intro
+      Bools: []
+    Actions: []
+  - Name: After Intro
+    Dialogue: Mother Gurgles
+    AllowLeave: 1
+    Options:
+    - Text: Give Flashlight
+      NextNode: Give Flash Light
+      Bools:
+      - Participant: Player
+        Key: HasFlashLight
+        State: 1
+    Actions: []
+  - Name: Give Flash Light
+    Dialogue: Mother Gurgles Hapily
+    AllowLeave: 1
+    Options: []
+    Actions:
+    - Type: DialogueGiveItemAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Player","ItemName":"Flashlight","RecieverParticipant":"Flash
+        Light Mother"}'
+    - Type: DialogueDisableParticipant, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Flash Light Mother"}'
