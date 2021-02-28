@@ -30,7 +30,8 @@ public class HoldableObject : BaseBehaviour, IInteractable
         InteractionMaterials = Materials.ToArray();
     }
 
-    public bool CanInteract(Player player) => player.ActiveState == player.LocomotionState; //Can only be picked up if player is moving around
+    //Check that the player is in the correct state & isn't standing on anything which is interactable
+    public bool CanInteract(Player player) => player.ActiveState == player.LocomotionState && !Physics.Raycast(player.transform.position, Vector3.down, 0.5f, LayerMask.GetMask("Interactable"), QueryTriggerInteraction.Ignore);
 
     public void OnInteract(Player player)
     {
