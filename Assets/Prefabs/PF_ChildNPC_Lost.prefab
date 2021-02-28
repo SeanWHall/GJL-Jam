@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7129933845027962747}
   m_LocalRotation: {x: -0, y: 0.85179317, z: -0, w: -0.5238782}
-  m_LocalPosition: {x: 0.99990076, y: 0.019755363, z: 1.1598253}
+  m_LocalPosition: {x: -0.023, y: 0.556, z: 0.009}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8210840453820814201}
@@ -141,6 +141,7 @@ GameObject:
   - component: {fileID: 8210840453820814203}
   - component: {fileID: 3162885461687144098}
   - component: {fileID: -5166793859912161113}
+  - component: {fileID: 8699330246354518439}
   m_Layer: 8
   m_Name: PF_ChildNPC_Lost
   m_TagString: Untagged
@@ -252,6 +253,24 @@ MonoBehaviour:
   VolumeMax: 1
   PitchMin: 0.7
   PitchMax: 1
+--- !u!114 &8699330246354518439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8210840453820814202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d326b2935fe53e4da8c5f771b1e2daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mySounds:
+  - {fileID: 8300000, guid: 8000edef1c2e00c4f9b86d6c36987396, type: 3}
+  - {fileID: 8300000, guid: 61a0e1b07aea4784c9ff60d3da86c211, type: 3}
+  - {fileID: 8300000, guid: 9a0c3aa4d47b6ed49ba255b6717ad931, type: 3}
+  - {fileID: 8300000, guid: 34fac4c87dd11a84a93a375002bf4da3, type: 3}
+  myAudioSource: {fileID: 40659908617015926}
 --- !u!1001 &8210840453462811149
 PrefabInstance:
   m_ObjectHideFlags: 0
