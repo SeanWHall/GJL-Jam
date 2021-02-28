@@ -224,6 +224,9 @@ MonoBehaviour:
   - Key: BlockOut
     Scenes:
     - Assets/Scenes/Blockout/BlockoutLevel.unity
+    - Assets/Scenes/Blockout/BlockoutLevel_Juli.unity
+    - Assets/Scenes/Blockout/BlockoutLevel_Sean.unity
+    - Assets/Scenes/Blockout/BlockoutLevel_Ythen.unity
 --- !u!114 &193898999246741100
 MonoBehaviour:
   m_ObjectHideFlags: 0
