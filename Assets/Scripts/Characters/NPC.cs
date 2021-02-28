@@ -4,13 +4,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
-public enum eNPCType
-{
-    Family,
-    Lost,
-    //Hurt
-}
-
 public class NPC : Character
 {
     public float   HandHoldHeight  = 0.5f;
@@ -40,11 +33,8 @@ public class NPC : Character
         ActiveState = IdleState;
     }
     
-    public override void OnDialogueEvent(DialogueEvent Ev)
-    {
-        if (Ev is DialogueEnterEvent) ActiveState     = DialogueState;
-        else if(Ev is DialogueLeaveEvent) ActiveState = IdleState;
-    }
+    public override void OnEnterDialogue() => ActiveState = DialogueState;
+    public override void OnLeaveDialogue() => ActiveState = IdleState; //TODO: Check if NPC is being Lead or carried
 }
 
 public class NPCState : CharacterState

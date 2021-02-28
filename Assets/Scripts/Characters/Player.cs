@@ -62,11 +62,8 @@ public class Player : Character
       PlayerAudioSource = GetComponent<AudioSource>(); // Tom
    }
 
-   public override void OnDialogueEvent(DialogueEvent Ev)
-   {
-      if (Ev is DialogueEnterEvent) ActiveState     = DialogueState;
-      else if(Ev is DialogueLeaveEvent) ActiveState = LocomotionState;
-   }
+   public override void OnEnterDialogue() => ActiveState = DialogueState;
+   public override void OnLeaveDialogue() => ActiveState = LocomotionState; //TODO: Check if NPC is being Lead or carried
 
    public override void OnUpdate(float DeltaTime)
    {

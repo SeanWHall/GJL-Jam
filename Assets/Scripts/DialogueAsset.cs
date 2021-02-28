@@ -448,6 +448,7 @@ public class DialogueAnimationAction : DialogueAction
 
    public override void Trigger(Character Context)
    {
+      if(!(Context is CharacterState))
       Debug.Log($"Playing State: {StateName} On Character: {Context.Name}");
       Context.AnimController.Play(StateName);
    }

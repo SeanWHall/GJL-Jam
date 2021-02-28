@@ -52,12 +52,13 @@ public class DialogueManager : BaseBehaviour
             return;
         }
         
+        foreach(var Participant in Participants)
+            Participant.OnEnterDialogue();
+        
         //if we made it here, then we should be good to go
         Instance.Participants  = Participants;
         Instance.DialogueAsset = Asset;
         Instance.CurrentNode   = null;
-        
-        Instance.SendDialogueEvent(new DialogueEnterEvent());
         
         Instance.SetupNode(Asset.Nodes[0]);
         HUD.Instance.ShowDialogue();
@@ -72,15 +73,6 @@ public class DialogueManager : BaseBehaviour
         base.OnEnable();
 
         Instance = this;
-    }
-
-    private void SendDialogueEvent(DialogueEvent Event)
-    {
-        if (Event == null)
-            return;
-        
-        foreach(var Participant in Participants)
-            Participant.OnDialogueEvent(Event);
     }
 
     public void SetupNode(DialogueNode Node)
@@ -135,7 +127,9 @@ public class DialogueManager : BaseBehaviour
     {
         HUD.Instance.HideDialogue();
 
-        SendDialogueEvent(new DialogueLeaveEvent());
+        
+        foreach(var Participant in Participants)
+            Participant.OnLeaveDialogue();
         
         Participants  = null;
         DialogueAsset = null;
@@ -155,7 +149,7 @@ public class DialogueManager : BaseBehaviour
     }
 }
 
-//TODO: Use for some conditional checks, if we need to... Other wise this can be simplified down at some point
-public abstract class DialogueEvent {}
-public class DialogueEnterEvent : DialogueEvent {}
-public class DialogueLeaveEvent : DialogueEvent {}
+public interface IIDialogueCharacter
+{
+    string Name { get; }
+}

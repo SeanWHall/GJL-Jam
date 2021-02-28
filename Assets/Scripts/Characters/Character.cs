@@ -40,6 +40,9 @@ public abstract class Character : BaseBehaviour
       AnimController = GetComponent<Animator>();
    }
 
+   public abstract void OnEnterDialogue();
+   public abstract void OnLeaveDialogue();
+
    public int GetDialogueBoolIDx(string Key)
    {
       int Len = Bools.Length;
@@ -52,7 +55,6 @@ public abstract class Character : BaseBehaviour
       return -1;
    }
 
-   public abstract void OnDialogueEvent(DialogueEvent Ev);
 
    public override void OnUpdate(float DeltaTime)    => _ActiveState?.OnUpdate();
    protected virtual void OnAnimatorIK(int LayerIDx) => _ActiveState?.OnAnimatorIK(LayerIDx);
