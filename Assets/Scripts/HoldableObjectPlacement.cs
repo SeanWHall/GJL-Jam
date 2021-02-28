@@ -24,7 +24,7 @@ public class HoldableObjectPlacement : BaseBehaviour, IInteractable
         {
             player.Controller.enabled            = false;
             player.Controller.transform.position = Player_Teleport.position;
-            player.Controller.enabled            = false;
+            player.Controller.enabled            = true;
         }
         
         Target.transform.parent   = null;
