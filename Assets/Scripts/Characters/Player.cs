@@ -129,11 +129,11 @@ public class Player : Character
       for (int i = 0; i < Interactables_Len; i++)
       {
          IInteractable Interactable = _Interactables[i];
-         if(!Interactable.CanInteract(this))
+         if(Interactable == null || !Interactable.CanInteract(this))
             continue; //make sure that the player can interact with this
          
-         Vector3       Interaction_Position = Interactable.Position;
-         float         Interaction_Dist     = Vector3.Distance(Player_Position, Interaction_Position);
+         Vector3 Interaction_Position = Interactable.Position;
+         float   Interaction_Dist     = Vector3.Distance(Player_Position, Interaction_Position);
          
          if(Interaction_Dist > Interactable.InteractionDistance || Closest_Interaction != null && (Interaction_Dist > Closest_Dist || Interactable.InteractionPriority <= Closest_Interaction.InteractionPriority))
             continue; //Player is too far away from the interaction or there is another one closer
@@ -160,6 +160,7 @@ public class Player : Character
       if (InputManager.Character_Interact.IsPressed)
       {
          Closest_Interaction.OnInteract(this);
+         HUD.Instance.HideInteractionUI();
          NextInteractionTime = Time.time + InteractionDelay;
       }
    }

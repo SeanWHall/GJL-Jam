@@ -20,6 +20,7 @@ public class HUD : BaseBehaviour
 
     [Header("General")]
     public RectTransform RootRect;
+    public RectTransform GameplayUI;
     public RawImage      BlackScreen;
     
     [Header("Interaction UI")]

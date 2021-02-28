@@ -82,7 +82,7 @@ public class GameManager : BaseBehaviour
       int ToRemove_Len = Behaviours_ToRemove.Count;
       if (ToRemove_Len > 0)
       {
-         for(int i = 0; i < ToAdd_Len; i++)
+         for(int i = 0; i < ToRemove_Len; i++)
             AllBehaviours.Remove(Behaviours_ToRemove[i]);
          Behaviours_ToRemove.Clear();
          
