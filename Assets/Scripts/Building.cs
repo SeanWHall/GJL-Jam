@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Building : BaseBehaviour
 {
@@ -25,6 +26,6 @@ public class Building : BaseBehaviour
     private void SetRenderersState(bool State)
     {
         foreach (var Renderer in Renderers)
-            Renderer.enabled = State;
+            Renderer.shadowCastingMode = State ? ShadowCastingMode.On : ShadowCastingMode.Off;
     }
 }
