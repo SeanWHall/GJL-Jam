@@ -47,3 +47,6 @@ MonoBehaviour:
     - Type: DialogueDisableParticipant, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
       JSon: '{"Participant":"Monument Mother"}'
+    - Type: DialogueGiveItemAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Monument Mother","ItemName":"Cutters","RecieverParticipant":"Player"}'
