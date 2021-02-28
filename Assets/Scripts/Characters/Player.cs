@@ -75,8 +75,34 @@ public class Player : Character
       PlayerAudioSource = GetComponent<AudioSource>(); // Tom
    }
 
-   public override void OnEnterDialogue() => ActiveState = DialogueState;
-   public override void OnLeaveDialogue() => ActiveState = LocomotionState; //TODO: Check if NPC is being Lead or carried
+   public override void OnEnterDialogue(Character[] Participants) => ActiveState = DialogueState;
+
+   public override void OnLeaveDialogue(Character[] Participants)
+   {
+      PlayerState    State = LocomotionState;
+      NPC_Followable NPC   = GetCharacterOutOfArray<NPC_Followable>(Participants);
+
+      if (NPC != null)
+      {
+         //We've interacted with a NPC that wants to follow US!
+         int Follow_IDx = NPC.GetDialogueBoolIDx("Follow");
+         int Carry_IDx  = NPC.GetDialogueBoolIDx("Carry");
+
+         if (Follow_IDx != -1 && NPC.Bools[Follow_IDx].Value)
+         {
+            //NPC Is following Us, use leading locomotion
+            LeadingNPCState.Following = NPC;
+            State                     = LeadingNPCState;
+         }
+         else if (Carry_IDx != -1 && NPC.Bools[Carry_IDx].Value)
+         {
+            CarryNPCState.Carrying = NPC;
+            State                  = CarryNPCState; //NPC is on our back, use carrying locomotion
+         }
+      }
+      
+      ActiveState = State; 
+   }
 
    public override void OnUpdate(float DeltaTime)
    {
@@ -407,9 +433,24 @@ public class PlayerBoatState : PlayerState
 
 public class PlayerCarryNPCState : PlayerLocomotionState
 {
-   public override bool CanJump => false;
+   public NPC_Followable Carrying;
+   
+   public override bool CanInteract => AnimController.GetFloat("Speed") < 0.1f; //Check if we are standing still!
+   public override bool CanJump     => false;
    
    public PlayerCarryNPCState(Player Character) : base(Character) {}
+
+   public override void OnAnimatorIK(int LayerIDx)
+   {
+      base.OnAnimatorIK(LayerIDx);
+      
+      //Place Player Hands on the feet of the NPC being carried, to make it abit more believeable
+      AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
+      AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+      
+      AnimController.SetIKPosition(AvatarIKGoal.LeftHand,  Player.Carry_Foot_LeftIK.position  + (-Player.transform.right * 0.05f));
+      AnimController.SetIKPosition(AvatarIKGoal.RightHand, Player.Carry_Foot_RightIK.position + (Player.transform.right * 0.05f));
+   }
 }
 
 public class PlayerLeadingNPCState : PlayerLocomotionState
@@ -418,8 +459,9 @@ public class PlayerLeadingNPCState : PlayerLocomotionState
    public bool           LeftSide = false;
    public Vector3        HandGoal;
    public AvatarIKGoal   IKGoal;
-   
-   public override bool CanJump => false;
+
+   public override bool CanInteract => AnimController.GetFloat("Speed") < 0.1f; //Check if we are standing still!
+   public override bool CanJump     => false;
    
    public PlayerLeadingNPCState(Player Character) : base(Character) {}
 
@@ -447,8 +489,9 @@ public class PlayerLeadingNPCState : PlayerLocomotionState
 
 public class PlayerHoldingObjectState : PlayerLocomotionState
 {
-   public override bool  CanJump => false;
-   public override float Speed   => base.Speed * Player.CarryingSpeedMod;
+   public override bool  CanInteract => AnimController.GetFloat("Speed") < 0.1f; //Check if we are standing still!
+   public override bool  CanJump     => false;
+   public override float Speed       => base.Speed * Player.CarryingSpeedMod;
 
    public HoldableObject HoldableObject;
    

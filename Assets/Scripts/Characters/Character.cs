@@ -40,9 +40,21 @@ public abstract class Character : BaseBehaviour
       AnimController = GetComponent<Animator>();
    }
 
-   public abstract void OnEnterDialogue();
-   public abstract void OnLeaveDialogue();
+   public abstract void OnEnterDialogue(Character[] Participants);
+   public abstract void OnLeaveDialogue(Character[] Participants);
 
+   public static T GetCharacterOutOfArray<T>(Character[] Characters) where T : Character
+   {
+      int Characters_Len = Characters.Length;
+      for (int i = 0; i < Characters_Len; i++)
+      {
+         if (Characters[i] is T)
+            return (T) Characters[i];
+      }
+
+      return default;
+   }
+   
    public int GetDialogueBoolIDx(string Key)
    {
       int Len = Bools.Length;

@@ -53,7 +53,7 @@ public class DialogueManager : BaseBehaviour
         }
         
         foreach(var Participant in Participants)
-            Participant.OnEnterDialogue();
+            Participant.OnEnterDialogue(Participants);
         
         //if we made it here, then we should be good to go
         Instance.Participants  = Participants;
@@ -165,7 +165,7 @@ public class DialogueManager : BaseBehaviour
 
         
         foreach(var Participant in Participants)
-            Participant.OnLeaveDialogue();
+            Participant.OnLeaveDialogue(Participants);
         
         Participants  = null;
         DialogueAsset = null;

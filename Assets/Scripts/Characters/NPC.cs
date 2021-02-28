@@ -40,8 +40,8 @@ public class NPC : Character, IInteractable
         InteractionMaterials = this.CollectAllMaterials();
     }
     
-    public override void OnEnterDialogue() => ActiveState = DialogueState;
-    public override void OnLeaveDialogue() => ActiveState = IdleState; //TODO: Check if NPC is being Lead or carried
+    public override void OnEnterDialogue(Character[] Participants) => ActiveState = DialogueState;
+    public override void OnLeaveDialogue(Character[] Participants) => ActiveState = IdleState; //TODO: Check if NPC is being Lead or carried
 
     public DialogueAsset GetActiveDialogue()
     {
@@ -60,7 +60,7 @@ public class NPC : Character, IInteractable
         return null;
     }
 
-    public bool CanInteract(Player player) => player.ActiveState == player.LocomotionState && GetActiveDialogue() != null;
+    public bool CanInteract(Player player) => player.ActiveState is PlayerLocomotionState && GetActiveDialogue() != null;
     public void OnInteract(Player player)  => DialogueManager.StartDialogue(GetActiveDialogue());
 }
 
@@ -82,11 +82,9 @@ public class NPCDialogueState : NPCState
 {
     public NPCDialogueState(NPC NPC) : base(NPC) {}
     
-    
     public override void OnEnter()
     {
         base.OnEnter();
-      
         //TODO: Face towards the Participants of the dialogue
     }
 }

@@ -18,7 +18,7 @@ MonoBehaviour:
   Nodes:
   - Name: Intro
     Dialogue: You pause to look at the Child...
-    AllowLeave: 1
+    AllowLeave: 0
     Options:
     - Text: Gesture to Follow
       NextNode: Follow
@@ -34,10 +34,7 @@ MonoBehaviour:
         State: 0
     - Text: Stay
       NextNode: Stay
-      Bools:
-      - Participant: Lost Child
-        Key: Follow
-        State: 1
+      Bools: []
     Actions:
     - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null

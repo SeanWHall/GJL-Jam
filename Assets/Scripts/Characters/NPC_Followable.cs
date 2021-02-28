@@ -24,7 +24,7 @@ public class NPC_Followable : NPC
             Warn("A Followable NPC, doesn't have a follow bool setup!");
     }
 
-    public override void OnLeaveDialogue()
+    public override void OnLeaveDialogue(Character[] Participants)
     {
         //Check if the NPC is currently following
         int Follow_IDx = GetDialogueBoolIDx("Follow");
@@ -98,8 +98,8 @@ public class NPCCarryState : NPCState
         AnimController.SetIKPositionWeight(AvatarIKGoal.LeftFoot,  1f);
         AnimController.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
         
-        AnimController.SetIKPosition(AvatarIKGoal.LeftFoot, Player.Carry_Foot_LeftIK.position);
-        AnimController.SetIKPosition(AvatarIKGoal.RightFoot, Player.Carry_Foot_RightIK.position);
+        AnimController.SetIKPosition(AvatarIKGoal.LeftFoot, Player.Carry_Foot_LeftIK.position   + new Vector3(0, 0.1f));
+        AnimController.SetIKPosition(AvatarIKGoal.RightFoot, Player.Carry_Foot_RightIK.position + new Vector3(0, 0.1f));
     }
 
     public override void OnLeave()
