@@ -3,7 +3,8 @@ using UnityEngine;
 
 public interface IInteractable
 {
-   float      InteractionDistance  { get;} //Distance before CanInteract will be called
+   int        InteractionPriority  { get; } //Highest Priority will override closest distance 
+   float      InteractionDistance  { get;}  //Distance before CanInteract will be called
    string     InteractionText      { get; } //Shown on the UI
    Vector3    Position             { get; }
    Material[] InteractionMaterials { get; } //Materials to enable rim on

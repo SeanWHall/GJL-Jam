@@ -6,7 +6,8 @@ public class InteractDirector : BaseBehaviour, IInteractable
    public string           Interact_Text;
    public float            Interact_Distance = 2;
    public PlayableDirector Target;
-   
+
+   public int        InteractionPriority  => 1;
    public float      InteractionDistance  => Interact_Distance;
    public string     InteractionText      => Interact_Text;
    public Vector3    Position             => transform.position;
@@ -16,7 +17,7 @@ public class InteractDirector : BaseBehaviour, IInteractable
 
    public bool CanInteract(Player player) => !m_Triggered && Target != null;
 
-   public void       OnInteract(Player player)
+   public void OnInteract(Player player)
    {
       if (m_Triggered)
          return;

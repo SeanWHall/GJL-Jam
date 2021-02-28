@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Bitgem.VFX.StylisedWater;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ public class Boat : BaseBehaviour, IInteractable
    public MeshRenderer BoatRenderer;
    public Rigidbody    Rigid;
    public Transform    PlayerSeat;
+   public Transform    NPCSeat;
    public float        WaterOffset = 0f;
    
    public Vector3 P1;
@@ -35,8 +37,10 @@ public class Boat : BaseBehaviour, IInteractable
    public float Brake_Force     = 5f;
    public float Move_Force      = 5f;
 
-   public DockArea Dock;
+   [NonSerialized] public NPC      NPCInBoat;
+   [NonSerialized] public DockArea Dock;
 
+   public int        InteractionPriority  => 10; //Boat is Really important
    public float      InteractionDistance  => Dock != null ? Dock.DockSize : -1;
    public string     InteractionText      => Player.Instance.ActiveState is PlayerLocomotionState ? "Climb In Boat" : "Climb Out Boat";
    public Vector3    Position             => PlayerSeat.position;
@@ -136,6 +140,6 @@ public class Boat : BaseBehaviour, IInteractable
       Gizmos.DrawSphere(Center, 0.1f);
    }
 
-   public bool CanInteract(Player player) => Dock != null && player.ActiveState == player.LocomotionState || player.ActiveState == player.BoatState;
-   public void OnInteract(Player player) => player.MountState.AttemptMountChange(player.ActiveState is PlayerLocomotionState);
+   public bool CanInteract(Player player) => Dock != null && player.ActiveState is PlayerLocomotionState || player.ActiveState == player.BoatState;
+   public void OnInteract(Player player)  => player.MountState.AttemptMountChange(player.ActiveState is PlayerLocomotionState);
 }

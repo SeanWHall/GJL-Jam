@@ -91,13 +91,13 @@ public class Player : Character
          if (Follow_IDx != -1 && NPC.Bools[Follow_IDx].Value)
          {
             //NPC Is following Us, use leading locomotion
-            LeadingNPCState.Following = NPC;
-            State                     = LeadingNPCState;
+            LeadingNPCState.NPC = NPC;
+            State               = LeadingNPCState;
          }
          else if (Carry_IDx != -1 && NPC.Bools[Carry_IDx].Value)
          {
-            CarryNPCState.Carrying = NPC;
-            State                  = CarryNPCState; //NPC is on our back, use carrying locomotion
+            CarryNPCState.NPC = NPC;
+            State             = CarryNPCState; //NPC is on our back, use carrying locomotion
          }
       }
       
@@ -134,7 +134,7 @@ public class Player : Character
          Vector3       Interaction_Position = Interactable.Position;
          float         Interaction_Dist     = Vector3.Distance(Player_Position, Interaction_Position);
          
-         if(Interaction_Dist > Interactable.InteractionDistance || Interaction_Dist > Closest_Dist)
+         if(Interaction_Dist > Interactable.InteractionDistance || Closest_Interaction != null && (Interaction_Dist > Closest_Dist || Interactable.InteractionPriority <= Closest_Interaction.InteractionPriority))
             continue; //Player is too far away from the interaction or there is another one closer
 
          //Now check that the player is able to see the interaction
@@ -314,14 +314,19 @@ public class PlayerLocomotionState : PlayerState
 
 public class PlayerChangeMountState : PlayerState
 {
-   public float NextAllowedMountChange;
-   public bool  Mounting;
+   public float          NextAllowedMountChange;
+   public bool           Mounting;
+   public NPC_Followable NPC;
 
    public bool AttemptMountChange(bool IsMounting)
    {
       if (Time.time < NextAllowedMountChange)
          return false;
 
+      //Check if player is leading an NPC
+      if (Player.ActiveState is PlayerNPCLocomotionState NPCLocoState)
+         NPC = NPCLocoState.NPC;
+      
       Mounting           = IsMounting;
       Player.ActiveState = this;
       return true;
@@ -363,9 +368,10 @@ public class PlayerChangeMountState : PlayerState
       AnimController.SetBool("Sitting", true);
       AnimController.SetFloat("Speed", 0f);
 
-        Debug.Log("EnterBoat"); // Tom
-
-      //CameraController.Instance.ActiveState = CameraController.Instance.BoatState;
+      if (NPC != null)
+         NPC.ActiveState = NPC.BoatState;
+      
+      Debug.Log("EnterBoat"); // Tom
 
       //Enable the Boat Physics
       Boat.Instance.Rigid.isKinematic = false;
@@ -387,11 +393,12 @@ public class PlayerChangeMountState : PlayerState
          Boat.Instance.transform.position = Boat.Instance.Dock.Boat_DockPoint.position;
          Boat.Instance.transform.rotation = Boat.Instance.Dock.Boat_DockPoint.rotation;
       }
+
+      if (Boat.Instance.NPCInBoat != null)
+         Boat.Instance.NPCInBoat.ActiveState = Boat.Instance.NPCInBoat.IdleState;
       
         Debug.Log("ExitBoat"); // Tom
-
-
-      //CameraController.Instance.ActiveState = CameraController.Instance.PlayerState;
+        
 
       AnimController.SetBool("Sitting", false);
 
@@ -400,6 +407,12 @@ public class PlayerChangeMountState : PlayerState
       Player.transform.position = Boat.Instance.Dock.Player_ExitPoint.position;
       Player.transform.rotation = Boat.Instance.Dock.Player_ExitPoint.rotation; //TODO: This is unsafe, could put the player at a bad rotation
       //TODO: Zero off any Y rotation, so forward is a flat direction (X & Z)
+   }
+
+   public override void OnLeave()
+   {
+      base.OnLeave();
+      NPC = null;
    }
 }
 
@@ -431,10 +444,15 @@ public class PlayerBoatState : PlayerState
    }
 }
 
-public class PlayerCarryNPCState : PlayerLocomotionState
+public class PlayerNPCLocomotionState : PlayerLocomotionState
 {
-   public NPC_Followable Carrying;
+   public NPC_Followable NPC;
    
+   public PlayerNPCLocomotionState(Player Character) : base(Character) {}
+}
+
+public class PlayerCarryNPCState : PlayerNPCLocomotionState
+{
    public override bool CanInteract => AnimController.GetFloat("Speed") < 0.1f; //Check if we are standing still!
    public override bool CanJump     => false;
    
@@ -453,9 +471,8 @@ public class PlayerCarryNPCState : PlayerLocomotionState
    }
 }
 
-public class PlayerLeadingNPCState : PlayerLocomotionState
+public class PlayerLeadingNPCState : PlayerNPCLocomotionState
 {
-   public NPC_Followable Following;
    public bool           LeftSide = false;
    public Vector3        HandGoal;
    public AvatarIKGoal   IKGoal;
@@ -469,13 +486,14 @@ public class PlayerLeadingNPCState : PlayerLocomotionState
    {
       base.OnUpdate();
       
-      IKGoal                          = LeftSide ? AvatarIKGoal.LeftHand  : AvatarIKGoal.RightHand;
-      Following.FollowingState.IKGoal = LeftSide ? AvatarIKGoal.RightHand : AvatarIKGoal.LeftHand;
+      //TODO: Try controlling other NPC IK inside this IK, not sure if unity will like that or not. But it would make this cleaner
+      IKGoal                    = LeftSide ? AvatarIKGoal.LeftHand  : AvatarIKGoal.RightHand;
+      NPC.HoldHandsState.IKGoal = LeftSide ? AvatarIKGoal.RightHand : AvatarIKGoal.LeftHand;
       
-      Vector3 NPCPosition    = Following.transform.position;
+      Vector3 NPCPosition    = NPC.transform.position;
       Vector3 PlayerPosition = Player.transform.position;
       Vector3 Direction      = Vector3.Normalize(PlayerPosition - NPCPosition);
-      HandGoal = NPCPosition + (Vector3.up * Following.HandHoldHeight) + (Direction * Vector3.Distance(NPCPosition, PlayerPosition) * 0.5f);
+      HandGoal = NPCPosition + (Vector3.up * NPC.HandHoldHeight) + (Direction * Vector3.Distance(NPCPosition, PlayerPosition) * 0.5f);
    }
 
    public override void OnAnimatorIK(int LayerIDx)

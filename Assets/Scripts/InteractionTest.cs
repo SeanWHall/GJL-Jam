@@ -6,6 +6,7 @@ public class InteractionTest : BaseBehaviour, IInteractable
 {
     public DialogueAsset Asset;
     
+    public int     InteractionPriority => 0;
     public float   InteractionDistance => 10f;
     public string  InteractionText     => "Test Interaction";
     public Vector3 Position            => transform.position;

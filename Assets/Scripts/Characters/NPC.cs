@@ -20,6 +20,7 @@ public class NPC : Character, IInteractable
     public NPCIdleState      IdleState;
     public NPCDialogueState  DialogueState;
 
+    public int        InteractionPriority  => -1; // NPC Talking isn't quite that important
     public float      InteractionDistance  => CommunicationDistance;
     public string     InteractionText      => $"Communicate With {Name}";
     public Vector3    Position             => transform.position;

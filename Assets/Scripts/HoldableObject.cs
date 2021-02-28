@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class HoldableObject : BaseBehaviour, IInteractable
 {
+    public int        InteractionPriority  => 0;
     public float      InteractionDistance  => PickupDistance;
     public string     InteractionText      => PickupText;
     public Vector3    Position             => transform.position;

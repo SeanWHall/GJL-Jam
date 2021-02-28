@@ -2,6 +2,7 @@
 
 public class HoldableObjectPlacement : BaseBehaviour, IInteractable
 {
+    public int        InteractionPriority  => 1;
     public float      InteractionDistance  => PlaceDistance;
     public string     InteractionText      => PlaceText;
     public Vector3    Position             => transform.position;

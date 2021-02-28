@@ -9,7 +9,7 @@ public class NPC_Followable : NPC
     public Vector3 HandOffset      = Vector3.zero;
     
     public NPCCarryState     CarryState;
-    public NPCFollowingState FollowingState;
+    public NPCHoldHandsState HoldHandsState;
     public NPCBoatState      BoatState;
     
     public override void OnEnable()
@@ -17,7 +17,7 @@ public class NPC_Followable : NPC
         base.OnEnable();
 
         CarryState     = new NPCCarryState(this);
-        FollowingState = new NPCFollowingState(this);
+        HoldHandsState = new NPCHoldHandsState(this);
         BoatState      = new NPCBoatState(this);
         
         if(GetDialogueBoolIDx("Follow") == -1)
@@ -41,7 +41,7 @@ public class NPC_Followable : NPC
             return;
         }
         
-        ActiveState = Bools[Follow_IDx].Value ? (NPCState)FollowingState : IdleState;
+        ActiveState = Bools[Follow_IDx].Value ? (NPCState)HoldHandsState : IdleState;
     }
 }
 
@@ -52,22 +52,41 @@ public class NPCBoatState : NPCState
     public override void OnEnter()
     {
         base.OnEnter();
+
+        Agent.enabled = false;
+
+        NPC.transform.parent        = Boat.Instance.NPCSeat;
+        NPC.transform.localPosition = Vector3.zero;
+        NPC.transform.localRotation = Quaternion.identity;
         
+        Boat.Instance.NPCInBoat = NPC;
         AnimController.SetBool("IsSitting", true);
     }
 
     public override void OnLeave()
     {
         base.OnLeave();
+
+        //Unparent the NPC from the dock
+        NPC.transform.parent   = null;
+        NPC.transform.position = Boat.Instance.Dock.NPC_ExitPoint.position;
         
         AnimController.SetBool("IsSitting", false);
+        Agent.enabled = true;
     }
 }
 
-public class NPCCarryState : NPCState
+public class NPCFollowingState : NPCState
 {
-    public Player Player => Player.Instance;
+    public Player                Player     => Player.Instance;
+    public PlayerCarryNPCState   CarryState => Player.Instance.CarryNPCState;
+    public PlayerLeadingNPCState LeadState  => Player.Instance.LeadingNPCState;
     
+    public NPCFollowingState(Character Character) : base(Character) {}
+}
+
+public class NPCCarryState : NPCFollowingState
+{
     public NPCCarryState(Character Character) : base(Character) {}
 
     public override void OnEnter()
@@ -121,31 +140,24 @@ public class NPCCarryState : NPCState
     }
 }
 
-public class NPCFollowingState : NPCState
+public class NPCHoldHandsState : NPCFollowingState
 {
-    public PlayerLeadingNPCState PlayerState => Player.Instance.LeadingNPCState;
-    
-    public NPCFollowingState(NPC NPC) : base(NPC) {}
+    public NPCHoldHandsState(NPC NPC) : base(NPC) {}
 
     public AvatarIKGoal IKGoal;
     
-    public override void OnEnter()
-    {
-        //TODO: Finish Ai Logic, Player needs to be the one updating it's values not the NPC
-        //Player.Following = NPC;
-    }
-
     public override void OnUpdate()
     {
+        base.OnUpdate();
+        
         Vector3 NPCPosition    = NPC.transform.position;
         Vector3 PlayerPosition = Player.transform.position;
         
-        if (Vector3.Distance(NPCPosition, PlayerPosition) > ((NPC_Followable)NPC).BreakDistance || Keyboard.current.lKey.isPressed)
+        if (Vector3.Distance(NPCPosition, PlayerPosition) > ((NPC_Followable)NPC).BreakDistance)
         {
             NPC.ActiveState = NPC.IdleState;
             return;
         }
-            
 
         //TODO: Might need to do some physics checks, to alter the following goal so it remains on the nav mesh
         //TODO: Should ready cache the transform and rotation, instead of constantly accessing it. Unity is stupid about this
@@ -153,8 +165,8 @@ public class NPCFollowingState : NPCState
         Vector3 Player_LeftSide  = PlayerPosition + (-Player.transform.right * (Player.NavObstacle.radius + ((NPC_Followable)NPC).DesiredDistance));
         Vector3 Player_RightSide = PlayerPosition + (Player.transform.right * (Player.NavObstacle.radius + ((NPC_Followable)NPC).DesiredDistance));
 
-        PlayerState.LeftSide = Vector3.Distance(NPCPosition, Player_LeftSide) < Vector3.Distance(NPCPosition, Player_RightSide);
-        Agent.SetDestination(PlayerState.LeftSide ? Player_LeftSide : Player_RightSide);
+        LeadState.LeftSide = Vector3.Distance(NPCPosition, Player_LeftSide) < Vector3.Distance(NPCPosition, Player_RightSide);
+        Agent.SetDestination(LeadState.LeftSide ? Player_LeftSide : Player_RightSide);
         
         AnimController.SetFloat("Speed", Agent.velocity.magnitude);
     }
@@ -164,15 +176,12 @@ public class NPCFollowingState : NPCState
         base.OnAnimatorIK(LayerIDx);
         
         AnimController.SetIKPositionWeight(IKGoal, 1f);
-        AnimController.SetIKPosition(IKGoal, PlayerState.HandGoal + ((NPC_Followable)NPC).HandOffset);
+        AnimController.SetIKPosition(IKGoal, LeadState.HandGoal + ((NPC_Followable)NPC).HandOffset);
     }
 
     public override void OnLeave()
     {
         base.OnLeave();
-        
         AnimController.SetFloat("Speed", 0);
-        //TODO: Player should be the one updating it's values
-        //Player.Following = null;
     }
 }
