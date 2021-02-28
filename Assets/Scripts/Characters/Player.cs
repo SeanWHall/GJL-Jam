@@ -40,6 +40,7 @@ public class Player : Character
    [NonSerialized] public NavMeshObstacle     NavObstacle;
    [NonSerialized] public Vector3             LastSafePosition; //Respawn points
    [NonSerialized] public float               NextInteractionTime;
+   [NonSerialized] public List<Item>          Inventory = new List<Item>();
    
    public PlayerLocomotionState    LocomotionState;
    public PlayerBoatState          BoatState;
@@ -138,7 +139,7 @@ public class Player : Character
             continue; //Player is too far away from the interaction or there is another one closer
 
          //Now check that the player is able to see the interaction
-         if (Physics.Linecast(Player_Position, Interaction_Position, out RaycastHit Hit, Mask, QueryTriggerInteraction.Ignore))
+         if (Physics.Linecast(Player_Position, Interaction_Position, Mask, QueryTriggerInteraction.Ignore))
             continue;
 
          //Update the closest interactable with this one
