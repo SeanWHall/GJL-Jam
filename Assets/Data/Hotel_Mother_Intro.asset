@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09b2aef7bd62a0428096a9a769bd176, type: 3}
+  m_Name: Hotel_Mother_Intro
+  m_EditorClassIdentifier: 
+  Participants:
+  - Hotel Mum
+  - Player
+  Nodes:
+  - Name: Intro
+    Dialogue: Player Approaches Mother
+    AllowLeave: 1
+    Options:
+    - Text: Hello
+      NextNode: After Intro
+      Bools: []
+    Actions: []
+  - Name: After Intro
+    Dialogue: Mother Gurgles, but hands Picture of Son
+    AllowLeave: 1
+    Options: []
+    Actions:
+    - Type: DialogueGiveItemAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Hotel Mum","ItemName":"PictureOfSon","RecieverParticipant":"Player"}'

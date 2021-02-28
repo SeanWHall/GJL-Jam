@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09b2aef7bd62a0428096a9a769bd176, type: 3}
+  m_Name: Hotel_Mother_WaitingForSon
+  m_EditorClassIdentifier: 
+  Participants:
+  - Hotel Mum
+  - Hotel Lost Child
+  - Player
+  Nodes:
+  - Name: Intro
+    Dialogue: Mother Gurgles
+    AllowLeave: 1
+    Options:
+    - Text: Present Son
+      NextNode: Present Son
+      Bools:
+      - Participant: Hotel Lost Child
+        Key: HasPictureOfSon
+        State: 1
+      - Participant: Hotel Lost Child
+        Key: Follow
+        State: 1
+    Actions: []
+  - Name: Present Son
+    Dialogue: Mother Gurgles Happily
+    AllowLeave: 1
+    Options: []
+    Actions:
+    - Type: DialogueDisableParticipant, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Hotel Mum"}'
+    - Type: DialogueDisableParticipant, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Hotel Lost Child"}'

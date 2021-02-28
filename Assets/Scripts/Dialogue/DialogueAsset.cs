@@ -148,3 +148,12 @@ public class DialogueGiveItemAction : DialogueAction
       Reciever.AddItem(TargetItem);
    }
 }
+
+public class DialogueDisableParticipant : DialogueAction
+{
+   public override void Trigger(DialogueContext Context)
+   {
+      Debug.Log($"Disabling Partitpant: {Context.Target.name}");
+      Context.Target.enabled = false;
+   }
+}

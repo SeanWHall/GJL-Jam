@@ -11,16 +11,17 @@ public class DialogueReference
 
 public class NPC : Character, IInteractable
 {
-    public float   CommunicationDistance = 2f;
+    public float CommunicationDistance = 2f;
+    public int   CommunicationPriority = -1;
     
     public DialogueReference[] Dialogues;
     
     [HideInInspector] public NavMeshAgent Agent;
 
-    public NPCIdleState      IdleState;
-    public NPCDialogueState  DialogueState;
-
-    public int        InteractionPriority  => -1; // NPC Talking isn't quite that important
+    public NPCIdleState     IdleState;
+    public NPCDialogueState DialogueState;
+    
+    public int        InteractionPriority  => CommunicationPriority; // NPC Talking isn't quite that important
     public float      InteractionDistance  => CommunicationDistance;
     public string     InteractionText      => $"Communicate With {Name}";
     public Vector3    Position             => transform.position;
@@ -42,7 +43,14 @@ public class NPC : Character, IInteractable
     }
     
     public override void OnEnterDialogue(Character[] Participants) => ActiveState = DialogueState;
-    public override void OnLeaveDialogue(Character[] Participants) => ActiveState = IdleState; //TODO: Check if NPC is being Lead or carried
+
+    public override void OnLeaveDialogue(Character[] Participants)
+    {
+        if (!enabled)
+            return;
+        
+        ActiveState = IdleState; //TODO: Check if NPC is being Lead or carried
+    }
 
     public DialogueAsset GetActiveDialogue()
     {

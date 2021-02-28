@@ -26,6 +26,9 @@ public class NPC_Followable : NPC
 
     public override void OnLeaveDialogue(Character[] Participants)
     {
+        if (!enabled)
+            return;
+        
         //Check if the NPC is currently following
         int Follow_IDx = GetDialogueBoolIDx("Follow");
         if (Follow_IDx == -1)
