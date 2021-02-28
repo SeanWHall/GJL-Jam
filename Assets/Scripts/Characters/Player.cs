@@ -395,7 +395,7 @@ public class PlayerChangeMountState : PlayerState
          Boat.Instance.transform.rotation = Boat.Instance.Dock.Boat_DockPoint.rotation;
       }
 
-      if (Boat.Instance.NPCInBoat != null)
+      if (Boat.Instance.NPCInBoat != null && Boat.Instance.Dock.NPC_ExitPoint != null)
          Boat.Instance.NPCInBoat.ActiveState = Boat.Instance.NPCInBoat.IdleState;
       
         Debug.Log("ExitBoat"); // Tom

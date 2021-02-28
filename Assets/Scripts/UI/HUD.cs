@@ -81,12 +81,18 @@ public class HUD : BaseBehaviour
 
     public void HideDialogue()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible   = false;
+        
         ClearDialogueOptions();
         Dialogue_Root.gameObject.SetActive(false);
     }
     
     public void ShowDialogue()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible   = true;
+        
         Dialogue_Root.gameObject.SetActive(true);
     }
 

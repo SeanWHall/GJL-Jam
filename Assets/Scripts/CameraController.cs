@@ -8,6 +8,7 @@ public class CameraController : BaseBehaviour
    public Camera  Camera;
    public float   CameaLength     = 5f;
    public float   LookSensitivity = 0.5f;
+   public float   Speed           = 4f;
    public Vector2 lookXLimit      = new Vector2(-180, 180f);
    public Vector2 lookYLimit      = new Vector2(30.0f, 90f);
    
@@ -172,8 +173,9 @@ public class BoatCameraState : CameraState
       Quaternion Camera_Rot     = Quaternion.Euler(m_CameraRot.y, m_CameraRot.x, 0);
       Vector3    Camera_Forward = Camera_Rot * Vector3.forward;
       Vector3    Boat_Pos       = Boat.Instance.transform.position;
+      Vector3    Camera_Pos     = Boat_Pos + (-Camera_Forward * Controller.CameaLength);
 
-      Controller.transform.position = Boat_Pos + (-Camera_Forward * Controller.CameaLength);
-      Controller.transform.rotation = Camera_Rot;
+      Controller.transform.position = Vector3.Lerp(Controller.transform.position,    Camera_Pos, Time.deltaTime * Controller.Speed);
+      Controller.transform.rotation = Quaternion.Lerp(Controller.transform.rotation, Camera_Rot, Time.deltaTime * Controller.Speed);
    }
 }

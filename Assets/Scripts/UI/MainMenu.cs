@@ -17,6 +17,10 @@ public class MainMenu : BaseBehaviour
       if (m_Cutscene_Routine != null)
          return;
       
+      
+      Cursor.lockState = CursorLockMode.Locked;
+      Cursor.visible   = false;
+      
       m_Cutscene_Routine = StartCoroutine(StartGameRoutine());
    }
 

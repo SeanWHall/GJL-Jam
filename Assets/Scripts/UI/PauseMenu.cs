@@ -6,7 +6,8 @@ public class PauseMenu : BaseBehaviour
 {
     public static PauseMenu Instance { get; private set; }
     public static bool      IsPaused => Instance != null && Instance.m_Paused;
-
+    public static bool      CanPause => Player.Instance != null && !DialogueManager.IsInDialogue && !LoadingManager.IsBusy;
+    
     public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate | eUpdateFlags.WhileDisabled | eUpdateFlags.WhilePaused;
 
     public GameObject   Target;
@@ -42,13 +43,16 @@ public class PauseMenu : BaseBehaviour
 
     public void Pause(bool NewPause)
     {
-        if (NewPause == m_Paused || Time.unscaledTime < m_NextPauseTime)
+        if (NewPause == m_Paused || Time.unscaledTime < m_NextPauseTime || !CanPause)
             return;
 
         if (NewPause) m_ScaleHandle = GameManager.ControlTimeScale(100, 0f);
         else          m_ScaleHandle.Release();
         
         HUD.Instance.GameplayUI.gameObject.SetActive(!NewPause); //Hide Gameplay UI
+
+        Cursor.lockState = NewPause ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible   = NewPause;
         
         Target.SetActive(NewPause);
         m_Paused        = NewPause;

@@ -11,6 +11,7 @@ public class HoldableObjectPlacement : BaseBehaviour, IInteractable
     public float          PlaceDistance = 5f;
     public string         PlaceText;
     public HoldableObject Target;
+    public Transform      Player_Teleport;
 
     public bool CanInteract(Player player) => player.ActiveState is PlayerHoldingObjectState && player.HoldingObjectState.HoldableObject == Target;
 
@@ -18,6 +19,14 @@ public class HoldableObjectPlacement : BaseBehaviour, IInteractable
     {
         player.ActiveState = player.LocomotionState;
 
+        //Check if we should teleport the player
+        if (Player_Teleport != null)
+        {
+            player.Controller.enabled            = false;
+            player.Controller.transform.position = Player_Teleport.position;
+            player.Controller.enabled            = false;
+        }
+        
         Target.transform.parent   = null;
         Target.transform.position = transform.position;
         Target.transform.rotation = transform.rotation;
