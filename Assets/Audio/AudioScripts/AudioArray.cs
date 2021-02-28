@@ -7,12 +7,6 @@ public class AudioArray : MonoBehaviour
     public AudioClip[] mySounds;
     public AudioSource myAudioSource;
 
-    void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("PlaySound");
-        PlayRandomSound();
-    }
-
     void PlayRandomSound()
     {
         // pick & play a random sound from the array - exclude index 0

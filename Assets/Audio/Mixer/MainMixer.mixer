@@ -14,6 +14,20 @@ AudioMixerEffectController:
   m_SendTarget: {fileID: 0}
   m_EnableWetMix: 0
   m_Bypass: 0
+--- !u!244 &-8996001176901042863
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: c5979bc2c4fbd134dbd6f0356b7b313e
+  m_EffectName: Attenuation
+  m_MixLevel: d2ac6679ed6885547a48e15275664051
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!244 &-8894568215575060122
 AudioMixerEffectController:
   m_ObjectHideFlags: 3
@@ -131,6 +145,25 @@ AudioMixerSnapshotController:
     1e4b686b71c5207459b92e55601708eb: -80
     083583be5fce4e74dbfd9132d58aae5a: -80
   m_TransitionOverrides: {}
+--- !u!243 &-4638312827429197437
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Boat
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: bdef0dbb1279abb4b82586209ec45301
+  m_Children: []
+  m_Volume: 2c394472a1f06f44aaaee24ce151a330
+  m_Pitch: 98f03d8f097dcb444972edf60bfb7974
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -8996001176901042863}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!243 &-4560392570506330606
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -324,6 +357,7 @@ AudioMixerController:
     - f7d333859c3b9b943b31dd5fb7d59d7b
     - 1671568bf52893c41b209c7e9eb696d5
     - 7a5c56c1442fcc942a5e52fbcc7b4579
+    - bdef0dbb1279abb4b82586209ec45301
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 5301976886589965370}
@@ -343,6 +377,7 @@ AudioMixerGroupController:
   - {fileID: 6662848703096698368}
   - {fileID: 8856805238877420075}
   - {fileID: -5358201959975861405}
+  - {fileID: -4638312827429197437}
   m_Volume: e9d298aae8e043d4abab48cc3b5e058d
   m_Pitch: 0c45e1bc28731e24f98fef4d85abce54
   m_Send: 00000000000000000000000000000000
