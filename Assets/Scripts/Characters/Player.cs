@@ -11,14 +11,25 @@ public class Player : Character
    
    public static Player Instance { get; private set; }
    
-   public float       Speed            = 5f;
-   public float       CarryingSpeedMod = 0.75f;
-   public float       InteractionDelay = 1f;
-   public float       AirbourneSpeed   = 3f;
-   public float       JumpHeight       = 6;
-   public float       JumpCooldown     = 0.5f;
-   public float       MountDelay       = 1f;
-   public Transform   PickupMountPoint;
+   [Header("Settings")]
+   public float     Speed            = 5f;
+   public float     CarryingSpeedMod = 0.75f;
+   public float     InteractionDelay = 1f;
+   public float     AirbourneSpeed   = 3f;
+   public float     JumpHeight       = 6;
+   public float     JumpCooldown     = 0.5f;
+   public float     MountDelay       = 1f;
+   
+   public Transform PickupMountPoint;
+   
+   [Header("Carry Points")]
+   public Transform Carry_Hand_LeftIK;
+   public Transform Carry_Hand_RightIK;
+   public Transform Carry_Foot_LeftIK;
+   public Transform Carry_Foot_RightIK;
+   public Transform Carry_MountPoint;
+   
+   [Header("Audio")]
    public AudioClip   JumpSound; // Tom
    public AudioClip   BoatEnter; // Tom
    public AudioClip   BoatExit; // Tom

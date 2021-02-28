@@ -38,7 +38,13 @@ MonoBehaviour:
       - Participant: Lost Child
         Key: Follow
         State: 1
-    Actions: []
+    Actions:
+    - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Lost Child","Key":"Follow","Value":false}'
+    - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      JSon: '{"Participant":"Lost Child","Key":"Carry","Value":false}'
   - Name: Follow
     Dialogue: You gesture to follow you by reaching out with your hand
     AllowLeave: 1
@@ -54,7 +60,7 @@ MonoBehaviour:
     Actions:
     - Type: DialogueSetBoolAction, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
-      JSon: '{"Participant":"Lost Child","Key":"Climb","Value":true}'
+      JSon: '{"Participant":"Lost Child","Key":"Carry","Value":true}'
   - Name: Stay
     Dialogue: You hold out your hand, in an attempt to make the child stay
     AllowLeave: 1

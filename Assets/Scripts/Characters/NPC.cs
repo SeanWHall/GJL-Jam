@@ -4,9 +4,9 @@ using UnityEngine.AI;
 [System.Serializable]
 public class DialogueReference
 {
+    public DialogueAsset Asset;
     public string        Key;
     public bool          State;
-    public DialogueAsset Asset;
 }
 
 public class NPC : Character, IInteractable

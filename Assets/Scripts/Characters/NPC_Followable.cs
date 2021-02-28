@@ -40,6 +40,7 @@ public class NPC_Followable : NPC
             ActiveState = CarryState;
             return;
         }
+        
         ActiveState = Bools[Follow_IDx].Value ? (NPCState)FollowingState : IdleState;
     }
 }
@@ -65,7 +66,59 @@ public class NPCBoatState : NPCState
 
 public class NPCCarryState : NPCState
 {
+    public Player Player => Player.Instance;
+    
     public NPCCarryState(Character Character) : base(Character) {}
+
+    public override void OnEnter()
+    {
+        base.OnEnter();
+
+        //Disable the agent, since we are being carried
+        Agent.enabled = false;
+        
+        //Mount the NPC to the back of the player
+        NPC.transform.parent = Player.Instance.Carry_MountPoint;
+        NPC.transform.localPosition = Vector3.zero;
+        NPC.transform.localRotation = Quaternion.identity;
+        
+        AnimController.SetBool("IsCarried", true);
+    }
+
+    public override void OnAnimatorIK(int LayerIDx)
+    {
+        base.OnAnimatorIK(LayerIDx);
+        
+        AnimController.SetIKPositionWeight(AvatarIKGoal.LeftHand,  1f);
+        AnimController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+        
+        AnimController.SetIKPosition(AvatarIKGoal.LeftHand, Player.Carry_Hand_LeftIK.position);
+        AnimController.SetIKPosition(AvatarIKGoal.RightHand, Player.Carry_Hand_RightIK.position);
+        
+        AnimController.SetIKPositionWeight(AvatarIKGoal.LeftFoot,  1f);
+        AnimController.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
+        
+        AnimController.SetIKPosition(AvatarIKGoal.LeftFoot, Player.Carry_Foot_LeftIK.position);
+        AnimController.SetIKPosition(AvatarIKGoal.RightFoot, Player.Carry_Foot_RightIK.position);
+    }
+
+    public override void OnLeave()
+    {
+        base.OnLeave();
+
+        AnimController.SetBool("IsCarried", false);
+        
+        //Unparent NPC
+        NPC.transform.parent = null;
+        
+        //Place npc at same Y Level of the player
+        Vector3 NPC_Pos        = NPC.transform.position;
+        NPC_Pos.y              = Player.Instance.transform.position.y;
+        NPC.transform.position = NPC_Pos;
+
+        //Renable the agent
+        Agent.enabled            = true;
+    }
 }
 
 public class NPCFollowingState : NPCState
