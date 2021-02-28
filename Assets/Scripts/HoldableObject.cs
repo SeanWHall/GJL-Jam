@@ -20,14 +20,7 @@ public class HoldableObject : BaseBehaviour, IInteractable
     {
         base.OnEnable();
 
-        List<Material> Materials     = new List<Material>(); //TODO: Could do this so much cleaner
-        MeshRenderer[] Renderers     = GetComponentsInChildren<MeshRenderer>();
-        int            Renderers_Len = Renderers.Length;
-        
-        for(int i = 0; i < Renderers_Len; i++)
-            Materials.AddRange(Renderers[i].materials);
-
-        InteractionMaterials = Materials.ToArray();
+        InteractionMaterials = this.CollectAllMaterials();
     }
 
     //Check that the player is in the correct state & isn't standing on anything which is interactable

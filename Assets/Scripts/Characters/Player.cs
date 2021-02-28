@@ -36,6 +36,7 @@ public class Player : Character
    public PlayerChangeMountState   MountState;
    public PlayerDialogueState      DialogueState;
    public PlayerLeadingNPCState    LeadingNPCState;
+   public PlayerCarryNPCState      CarryNPCState;
    public PlayerHoldingObjectState HoldingObjectState;
    
    public override void OnEnable()
@@ -54,6 +55,7 @@ public class Player : Character
       MountState         = new PlayerChangeMountState(this);
       DialogueState      = new PlayerDialogueState(this);
       LeadingNPCState    = new PlayerLeadingNPCState(this);
+      CarryNPCState      = new PlayerCarryNPCState(this);
       HoldingObjectState = new PlayerHoldingObjectState(this);
 
       ActiveState      = LocomotionState;
@@ -177,6 +179,18 @@ public class PlayerState : CharacterState
    public PlayerState(Character Character) : base(Character) {}
 }
 
+public class PlayerDialogueState : PlayerState
+{
+   public PlayerDialogueState(Player Player) : base(Player) { }
+
+   public override void OnEnter()
+   {
+      base.OnEnter();
+      
+      //TODO: Face towards the Participants of the dialogue
+   }
+}
+
 //Player is currently jumping
 public class PlayerJumpState : PlayerState
 {
@@ -225,6 +239,7 @@ public class PlayerJumpState : PlayerState
 public class PlayerLocomotionState : PlayerState
 {
    public virtual  float Speed       => Player.Speed;
+   public virtual  bool  CanJump     => true;
    public override bool  CanInteract => true;
 
    public PlayerLocomotionState(Player Player) : base(Player) {}
@@ -236,7 +251,7 @@ public class PlayerLocomotionState : PlayerState
       
       if (Movement.magnitude > 0)
       {
-         if (Controller.isGrounded && Player.JumpState.CanJump && InputManager.Character_Jump.IsPressed)
+         if (CanJump && Controller.isGrounded && Player.JumpState.CanJump && InputManager.Character_Jump.IsPressed)
          {
             Player.ActiveState = Player.JumpState; //Transition into the jump state
             return;
@@ -379,17 +394,21 @@ public class PlayerBoatState : PlayerState
    }
 }
 
-public class PlayerDialogueState : PlayerState
+public class PlayerCarryNPCState : PlayerLocomotionState
 {
-   public PlayerDialogueState(Player Player) : base(Player) { }
+   public override bool CanJump => false;
+   
+   public PlayerCarryNPCState(Player Character) : base(Character) {}
 }
 
 public class PlayerLeadingNPCState : PlayerLocomotionState
 {
-   public NPC          Following;
-   public bool         LeftSide = false;
-   public Vector3      HandGoal;
-   public AvatarIKGoal IKGoal;
+   public NPC_Followable Following;
+   public bool           LeftSide = false;
+   public Vector3        HandGoal;
+   public AvatarIKGoal   IKGoal;
+   
+   public override bool CanJump => false;
    
    public PlayerLeadingNPCState(Player Character) : base(Character) {}
 
@@ -417,7 +436,8 @@ public class PlayerLeadingNPCState : PlayerLocomotionState
 
 public class PlayerHoldingObjectState : PlayerLocomotionState
 {
-   public override float Speed => base.Speed * Player.CarryingSpeedMod;
+   public override bool  CanJump => false;
+   public override float Speed   => base.Speed * Player.CarryingSpeedMod;
 
    public HoldableObject HoldableObject;
    
