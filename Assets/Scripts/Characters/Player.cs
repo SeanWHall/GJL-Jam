@@ -34,6 +34,9 @@ public class Player : Character
    public AudioClip   BoatEnter; // Tom
    public AudioClip   BoatExit; // Tom
    public AudioSource PlayerAudioSource; // Tom
+   public AudioArray  JumpArray;
+   public AudioArray  LandArray;
+   public AudioArray  DeathArray;
 
    [NonSerialized] public Renderer[]          Renderers;
    [NonSerialized] public CharacterController Controller;
@@ -179,9 +182,11 @@ public class Player : Character
          if (Event != HUD.eFadeScreenEvent.Middle)
             return;
          
+         DeathArray?.PlayRandomSound();
+         
          //Wait for the screen to be black, before moving the player
-         Controller.enabled = false;
-         transform.position = LastSafePosition;
+         Controller.enabled  = false;
+         transform.position  = LastSafePosition;
          CameraController.Instance.PlayerState.UpdateCamera();
          Controller.enabled = true;
       }
@@ -243,8 +248,7 @@ public class PlayerJumpState : PlayerState
       base.OnEnter();
       JumpVelocity = Player.JumpHeight * OrientatedInput.normalized.magnitude; //Shorten Jump Height if not moving
       AnimController.SetBool("IsJumping", true);
-        Debug.Log("Play Jump Sound"); // Tom
-        //PlayerAudioSource.clip = JumpSound; // Tom
+      Player.JumpArray?.PlayRandomSound();
     }
 
    public override void OnUpdate()
@@ -260,9 +264,12 @@ public class PlayerJumpState : PlayerState
       Controller.Move(Velocity * Time.deltaTime);
       
       JumpVelocity += Physics.gravity.y * Time.deltaTime;
-      
+
       if (TimeInState > 0.5f && Controller.isGrounded)
+      {
+         Player.LandArray?.PlayRandomSound();
          Player.ActiveState = Player.LocomotionState;
+      }
    }
 
    public override void OnLeave()
@@ -369,6 +376,9 @@ public class PlayerChangeMountState : PlayerState
       AnimController.SetBool("Sitting", true);
       AnimController.SetFloat("Speed", 0f);
 
+      if (Boat.Instance.Source != null && Boat.Instance.UnDockClip)
+         Boat.Instance.Source.PlayOneShot(Boat.Instance.UnDockClip);
+      
       if (NPC != null)
          NPC.ActiveState = NPC.BoatState;
       
@@ -388,6 +398,9 @@ public class PlayerChangeMountState : PlayerState
       Boat.Instance.Rigid.angularVelocity = Vector3.zero;
       Boat.Instance.Rigid.isKinematic     = true;
 
+      if (Boat.Instance.Source != null && Boat.Instance.DockClip)
+         Boat.Instance.Source.PlayOneShot(Boat.Instance.DockClip);
+      
       if (Boat.Instance.Dock.Boat_DockPoint != null)
       {
          //Reset Boat to the docked point, we do this so the boat is rotated 180 degrees so they can get out later

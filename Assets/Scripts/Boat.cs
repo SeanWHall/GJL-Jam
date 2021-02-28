@@ -37,6 +37,11 @@ public class Boat : BaseBehaviour, IInteractable
    public float Brake_Force     = 5f;
    public float Move_Force      = 5f;
 
+   public AudioClip   DockClip;
+   public AudioClip   UnDockClip;
+   public AudioSource Source;
+   public AudioArray  BoatAudio;
+
    [NonSerialized] public NPC      NPCInBoat;
    [NonSerialized] public DockArea Dock;
 
@@ -62,6 +67,8 @@ public class Boat : BaseBehaviour, IInteractable
    {
       if (Oar.Rotate_Routine != null)
          return false;
+
+      BoatAudio?.PlayRandomSound();
       
       Rigid.AddForceAtPosition(transform.forward * Move_Force, Oar.ForceOffset.position, ForceMode.Force);
       Oar.Rotate_Routine = StartCoroutine(RoateOarAsync(Oar));
@@ -93,7 +100,7 @@ public class Boat : BaseBehaviour, IInteractable
       WaterVolumeHelper WaterInstance = WaterVolumeHelper.Instance;
       if (WaterInstance == null)
          return;
-
+      
       Rigid.velocity        = Vector3.ClampMagnitude(Rigid.velocity, Max_Speed);
       Rigid.angularVelocity = Vector3.ClampMagnitude(Rigid.angularVelocity, Max_Speed);
 
@@ -140,6 +147,6 @@ public class Boat : BaseBehaviour, IInteractable
       Gizmos.DrawSphere(Center, 0.1f);
    }
 
-   public bool CanInteract(Player player) => Dock != null && player.ActiveState is PlayerLocomotionState || player.ActiveState == player.BoatState;
+   public bool CanInteract(Player player) => Dock != null && player.ActiveState is PlayerLocomotionState && player.ActiveState != player.HoldingObjectState || player.ActiveState == player.BoatState;
    public void OnInteract(Player player)  => player.MountState.AttemptMountChange(player.ActiveState is PlayerLocomotionState);
 }

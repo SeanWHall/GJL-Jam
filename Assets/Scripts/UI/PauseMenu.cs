@@ -13,6 +13,10 @@ public class PauseMenu : BaseBehaviour
     public GameObject   Target;
     public GameObject[] Tabs;
 
+    public AudioClip   OpenClip;
+    public AudioClip   CloseClip;
+    public AudioSource Source;
+
     private TimeScaleHandle m_ScaleHandle;
     private bool            m_Paused;
     private float           m_NextPauseTime;
@@ -48,7 +52,13 @@ public class PauseMenu : BaseBehaviour
 
         if (NewPause) m_ScaleHandle = GameManager.ControlTimeScale(100, 0f);
         else          m_ScaleHandle.Release();
-        
+
+        if (Source != null)
+        {
+            if (NewPause  && OpenClip != null) Source.PlayOneShot(OpenClip);
+            if (!NewPause && CloseClip != null) Source.PlayOneShot(CloseClip);
+        }
+
         HUD.Instance.GameplayUI.gameObject.SetActive(!NewPause); //Hide Gameplay UI
 
         Cursor.lockState = NewPause ? CursorLockMode.Locked : CursorLockMode.None;

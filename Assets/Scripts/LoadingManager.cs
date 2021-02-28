@@ -228,6 +228,8 @@ public class LoadingManager : BaseBehaviour
          Target.Sample.End();
       }
       
+      LightProbes.Tetrahedralize();
+      
       m_LoadingCamera.SetActive(false);
       yield return FadeLoadingScreen(false); //Hide Loading Screen
 

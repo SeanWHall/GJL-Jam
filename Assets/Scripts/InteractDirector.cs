@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.Playables;
 
 public class InteractDirector : BaseBehaviour, IInteractable

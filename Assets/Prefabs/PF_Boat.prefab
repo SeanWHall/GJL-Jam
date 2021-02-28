@@ -136,7 +136,7 @@ AudioSource:
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -479,7 +479,10 @@ MonoBehaviour:
   Max_Speed: 10
   Brake_Force: 0.5
   Move_Force: 7
-  Dock: {fileID: 0}
+  DockClip: {fileID: 8300000, guid: d005956410f2cd0498dc2dfea63be90a, type: 3}
+  UnDockClip: {fileID: 8300000, guid: 7d6751580e358af4fa7c0d1e078c239b, type: 3}
+  Source: {fileID: 2082744250854230736}
+  BoatAudio: {fileID: 1632771158018330385}
 --- !u!54 &6864592620036359370
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -763,6 +766,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 130
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: b67f3f526dae7044088b0fe5a6e4c7c6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 25b441f57c730194bb9dd2041d82620a, type: 2}
     - target: {fileID: 919132149155446097, guid: b67f3f526dae7044088b0fe5a6e4c7c6,
         type: 3}
       propertyPath: m_Name
@@ -858,6 +866,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 130
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: b67f3f526dae7044088b0fe5a6e4c7c6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 25b441f57c730194bb9dd2041d82620a, type: 2}
     - target: {fileID: 919132149155446097, guid: b67f3f526dae7044088b0fe5a6e4c7c6,
         type: 3}
       propertyPath: m_Name

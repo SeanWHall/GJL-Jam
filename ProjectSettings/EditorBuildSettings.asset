@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Blockout/BlockoutLevel_Ythen.unity
     guid: 6d0a8fa4d82157a4983ab2db19d9d367
+  - enabled: 1
+    path: Assets/Scenes/EndScreen.unity
+    guid: beb0ba48850f57d4580efaee65d393b4
   m_configObjects: {}

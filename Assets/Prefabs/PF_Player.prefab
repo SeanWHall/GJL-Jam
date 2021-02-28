@@ -309,6 +309,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Player
   Bools: []
+  Inventory: []
   Speed: 2
   CarryingSpeedMod: 0.75
   InteractionDelay: 1
@@ -326,6 +327,9 @@ MonoBehaviour:
   BoatEnter: {fileID: 0}
   BoatExit: {fileID: 0}
   PlayerAudioSource: {fileID: 0}
+  JumpArray: {fileID: 3708824374994482478}
+  LandArray: {fileID: 86977809771374426}
+  DeathArray: {fileID: 2858703318941321557}
 --- !u!143 &4494543130054432525
 CharacterController:
   m_ObjectHideFlags: 0

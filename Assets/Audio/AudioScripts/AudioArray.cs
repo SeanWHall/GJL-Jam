@@ -7,7 +7,7 @@ public class AudioArray : MonoBehaviour
     public AudioClip[] mySounds;
     public AudioSource myAudioSource;
 
-    void PlayRandomSound()
+    public void PlayRandomSound()
     {
         // pick & play a random sound from the array - exclude index 0
         int n = Random.Range(1, mySounds.Length); // generate a random number between 1 and length of array

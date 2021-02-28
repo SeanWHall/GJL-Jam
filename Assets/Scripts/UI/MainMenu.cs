@@ -42,8 +42,10 @@ public class MainMenu : BaseBehaviour
       Cutscene_Director.Play();
 
       //Wait for the cutscene to finish
-      while (Cutscene_Director.state == PlayState.Playing)
+      while (Cutscene_Director.time < 13f)
          yield return new WaitForEndOfFrame();
+
+      yield return new WaitForSeconds(5);
       
       //Load the Level!
       LoadingManager.LoadLevel("BlockOut");

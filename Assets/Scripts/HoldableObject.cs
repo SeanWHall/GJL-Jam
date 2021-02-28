@@ -10,13 +10,14 @@ public class HoldableObject : BaseBehaviour, IInteractable
     public Vector3    Position             => transform.position;
     public Material[] InteractionMaterials { get; set; }
     
-    public Transform LeftHand;
-    public Transform RightHand;
-    public Vector3   HoldOffset;
-    public Vector3   HoldRotation;
-    public string    PickupText;
-    public float     PickupDistance = 5f;
-
+    public Transform  LeftHand;
+    public Transform  RightHand;
+    public Vector3    HoldOffset;
+    public Vector3    HoldRotation;
+    public string     PickupText;
+    public float      PickupDistance = 5f;
+    public AudioArray InteractSounds;
+    
     public override void OnEnable()
     {
         base.OnEnable();
@@ -29,6 +30,8 @@ public class HoldableObject : BaseBehaviour, IInteractable
 
     public void OnInteract(Player player)
     {
+        InteractSounds?.PlayRandomSound();
+
         transform.SetParent(player.PickupMountPoint);
         transform.localPosition = HoldOffset;
         transform.localRotation = Quaternion.Euler(HoldRotation);

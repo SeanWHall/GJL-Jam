@@ -63,7 +63,7 @@ public class DialogueManager : BaseBehaviour
         Instance.SetupNode(Asset.Nodes[0]);
         HUD.Instance.ShowDialogue();
     }
-
+    
     public Character[]   Participants;
     public DialogueAsset DialogueAsset;
     public DialogueNode  CurrentNode;
@@ -163,7 +163,6 @@ public class DialogueManager : BaseBehaviour
     {
         HUD.Instance.HideDialogue();
 
-        
         foreach(var Participant in Participants)
             Participant.OnLeaveDialogue(Participants);
         

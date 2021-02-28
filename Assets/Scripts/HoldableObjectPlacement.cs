@@ -27,6 +27,8 @@ public class HoldableObjectPlacement : BaseBehaviour, IInteractable
             player.Controller.enabled            = true;
         }
         
+        Target?.InteractSounds.PlayRandomSound();
+        
         Target.transform.parent   = null;
         Target.transform.position = transform.position;
         Target.transform.rotation = transform.rotation;

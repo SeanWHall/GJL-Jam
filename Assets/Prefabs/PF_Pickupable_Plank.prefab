@@ -245,6 +245,7 @@ MonoBehaviour:
   HoldRotation: {x: -90.00001, y: 0, z: 0}
   PickupText: Pickup Plank
   PickupDistance: 2
+  InteractSounds: {fileID: 3091287258331755784}
 --- !u!114 &3091287258331755784
 MonoBehaviour:
   m_ObjectHideFlags: 0

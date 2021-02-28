@@ -175,6 +175,9 @@ public class BoatCameraState : CameraState
       Vector3    Boat_Pos       = Boat.Instance.transform.position;
       Vector3    Camera_Pos     = Boat_Pos + (-Camera_Forward * Controller.CameaLength);
 
+      if (Physics.Linecast(Boat_Pos, Camera_Pos, out RaycastHit Hit, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
+         Camera_Pos = Boat_Pos + (-Camera_Forward * Hit.distance); //Recalculate the Camera position based on where it hit!
+      
       Controller.transform.position = Vector3.Lerp(Controller.transform.position,    Camera_Pos, Time.deltaTime * Controller.Speed);
       Controller.transform.rotation = Quaternion.Lerp(Controller.transform.rotation, Camera_Rot, Time.deltaTime * Controller.Speed);
    }

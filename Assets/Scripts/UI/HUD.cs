@@ -15,6 +15,8 @@ public class DialogueOptionUI
 public class HUD : BaseBehaviour
 {
     public static HUD Instance { get; private set; }
+
+    public static bool IsFading => Instance != null && Instance.m_Fade_Routine != null;
     
     public override eUpdateFlags UpdateFlags => eUpdateFlags.RequireUpdate;
 
@@ -31,6 +33,10 @@ public class HUD : BaseBehaviour
     public RectTransform      Dialogue_Root;
     public Text               Dialogue_Text;
     public DialogueOptionUI[] Dialogue_OptionButtons;
+    
+    public AudioClip   Dialogue_Open;
+    public AudioClip   Dialogue_Close;
+    public AudioSource Source;
     
     private Camera        m_Camera; //TODO: Update this camera
     private IInteractable m_Interactable;
@@ -81,6 +87,9 @@ public class HUD : BaseBehaviour
 
     public void HideDialogue()
     {
+        if(Source != null && Dialogue_Close != null)
+            Source.PlayOneShot(Dialogue_Close);
+        
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
         
@@ -90,6 +99,9 @@ public class HUD : BaseBehaviour
     
     public void ShowDialogue()
     {
+        if(Source != null && Dialogue_Open != null)
+            Source.PlayOneShot(Dialogue_Open);
+        
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible   = true;
         
@@ -196,6 +208,7 @@ public class HUD : BaseBehaviour
             yield return Fade(1f, 0f);
             Del?.Invoke(eFadeScreenEvent.End);
             BlackScreen.gameObject.SetActive(false);
+            m_Fade_Routine = null;
         }
 
         IEnumerator Fade(float Start, float Target)
