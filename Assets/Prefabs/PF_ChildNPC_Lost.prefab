@@ -267,8 +267,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 384189a1e3828f0429ac6bf352693dd9, type: 3}
   - {fileID: 8300000, guid: 782525c7745e31c42beded0210ea7c98, type: 3}
   AudioSourceGameObject: {fileID: 40659908617015926}
-  VolumeMin: 0.8
-  VolumeMax: 1
+  VolumeMin: 0.5
+  VolumeMax: 0.5
   PitchMin: 0.7
   PitchMax: 1
 --- !u!114 &8699330246354518439
