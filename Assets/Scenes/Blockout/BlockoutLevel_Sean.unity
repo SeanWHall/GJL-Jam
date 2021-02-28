@@ -121,7 +121,7 @@ NavMeshSettings:
     accuratePlacement: 0
     debug:
       m_Flags: 0
-  m_NavMeshData: {fileID: 0}
+  m_NavMeshData: {fileID: 23800000, guid: 8500e3459c36e664895cdf639bf57d72, type: 2}
 --- !u!1001 &15935734
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1229,6 +1229,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: 'Plank: Hotel Exterior 2'
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0fe3b1ae5eca5fb41aec41af2302a369,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fe3b1ae5eca5fb41aec41af2302a369, type: 3}
 --- !u!1 &512710843
@@ -1639,6 +1644,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wooden_Box (50)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a166f3d6298cfbb46b7b1de18099a635,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a166f3d6298cfbb46b7b1de18099a635, type: 3}
 --- !u!1 &846681176
@@ -1837,6 +1847,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Wooden_Box (49)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a166f3d6298cfbb46b7b1de18099a635,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a166f3d6298cfbb46b7b1de18099a635, type: 3}
@@ -2245,6 +2260,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Wooden_Box (48)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a166f3d6298cfbb46b7b1de18099a635,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a166f3d6298cfbb46b7b1de18099a635, type: 3}
