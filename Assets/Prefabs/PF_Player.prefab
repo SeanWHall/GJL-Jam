@@ -43,7 +43,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: -3742446787994311017, guid: e8eb896d818810d47bcc5d2a673ebe97,
     type: 2}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -211,6 +211,8 @@ MonoBehaviour:
   Name: Player
   Bools: []
   Speed: 2
+  CarryingSpeedMod: 0.75
+  InteractionDelay: 1
   AirbourneSpeed: 1.85
   JumpHeight: 4
   JumpCooldown: 0.5
